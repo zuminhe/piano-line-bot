@@ -48,7 +48,7 @@ if (req.method !== 'POST') return res.status(405).end();
         await replyMessage(replyToken, [
           {
             type: 'text',
-            text: `✅ 驗證成功！\n\n歡迎加入「教會鋼琴手」${result.planName}！\n\n圖文選單已為你解鎖，點選下方選單即可開始學習 🎹`,
+            text: `✅ 驗證成功！\n\n歡迎加入「教會鋼琴」${result.planName}！\n\n圖文選單已為你解鎖，點選下方選單即可開始學習 🎹`,
           }
         ]);
       } else if (result.used) {
