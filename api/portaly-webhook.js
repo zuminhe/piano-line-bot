@@ -53,7 +53,7 @@ export default async function handler(req, res) {
   await pushMessage(lineUserId, [
     {
       type: 'text',
-      text: `🎹 感謝你購買「教會鋼琴手」${plan.name}！\n\n你的專屬驗證碼：\n\n【 ${code} 】\n\n請直接在這裡輸入驗證碼，即可解鎖你的課程圖文選單 ✨`,
+      text: `🎹 感謝你購買「教會鋼琴」${plan.name}！\n\n你的專屬驗證碼：\n\n【 ${code} 】\n\n請直接在這裡輸入驗證碼，即可解鎖你的課程圖文選單 ✨`,
     }
   ]);
 
