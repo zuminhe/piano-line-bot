@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教會鋼琴手｜後台管理</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; }
+  .header { background: #0f2044; color: #fff; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+  .header h1 { font-size: 18px; font-weight: 500; }
+  .header span { font-size: 13px; color: #9ec5fe; }
+  .container { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .card h2 { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+  .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  select, input { padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: #fff; }
+  select:focus, input:focus { outline: none; border-color: #4f8ef7; }
+  .btn { padding: 9px 18px; border-radius: 8px; border: none; font-size: 14px; cursor: pointer; font-weight: 500; }
+  .btn-primary { background: #0f2044; color: #fff; }
+  .btn-primary:hover { background: #1a3060; }
+  .btn-copy { background: #f1f5f9; color: #475569; font-size: 12px; padding: 4px 10px; border-radius: 6px; border: none; cursor: pointer; }
+  .btn-copy:hover { background: #e2e8f0; }
+  .code-display { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 16px; text-align: center; display: none; margin-top: 12px; }
+  .code-display .code { font-size: 28px; font-weight: 700; letter-spacing: 4px; color: #0f2044; font-family: monospace; }
+  .code-display .plan-label { font-size: 13px; color: #64748b; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #f1f5f9; color: #64748b; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f8fafc; color: #334155; }
+  tr:hover td { background: #f8fafc; }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+  .badge-used { background: #dcfce7; color: #166534; }
+  .badge-unused { background: #fef3c7; color: #92400e; }
+  .badge-plan { background: #e0e7ff; color: #3730a3; }
+  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .login-card { background: #fff; border-radius: 12px; padding: 32px; width: 320px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); text-align: center; }
+  .login-card h2 { font-size: 18px; margin-bottom: 20px; color: #0f2044; }
+  .login-card input { width: 100%; margin-bottom: 12px; }
+  .login-card .btn { width: 100%; }
+  .empty { text-align: center; padding: 32px; color: #94a3b8; font-size: 14px; }
+  #app { display: none; }
+</style>
+</head>
+<body>
+
+<!-- 登入畫面 -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <h2>🎹 後台管理</h2>
+    <input type="password" id="admin-password" placeholder="請輸入管理員密碼" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn btn-primary" onclick="login()">登入</button>
+  </div>
+</div>
+
+<!-- 主畫面 -->
+<div id="app">
+  <div class="header">
+    <h1>🎹 教會鋼琴手｜後台管理</h1>
+    <span>驗證碼管理系統</span>
+  </div>
+  <div class="container">
+
+    <!-- 產生驗證碼 -->
+    <div class="card">
+      <h2>📋 手動產生驗證碼</h2>
+      <div class="form-row">
+        <select id="plan-select">
+          <option value="starter">入門方案 (NT$1,200)</option>
+          <option value="plan_b">帶課陪跑方案B (NT$2,400/集)</option>
+          <option value="plan_a">帶課陪跑方案A (NT$4,800)</option>
+        </select>
+        <input type="text" id="line-user-id" placeholder="LINE User ID（選填，填了會自動推播）" style="flex:1; min-width:200px;">
+        <input type="text" id="note" placeholder="備註（例如：學員姓名）" style="flex:1; min-width:150px;">
+        <button class="btn btn-primary" onclick="generateCode()">產生驗證碼</button>
+      </div>
+      <div class="code-display" id="code-display">
+        <div class="code" id="code-text"></div>
+        <div class="plan-label" id="code-plan"></div>
+        <button class="btn-copy" onclick="copyCode()" style="margin-top:10px;">複製驗證碼</button>
+      </div>
+    </div>
+
+    <!-- 驗證碼列表 -->
+    <div class="card">
+      <h2>📊 所有驗證碼</h2>
+      <div id="codes-table">
+        <div class="empty">載入中...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let ADMIN_SECRET = '';
+
+function login() {
+  const pw = document.getElementById('admin-password').value;
+  if (!pw) return alert('請輸入密碼');
+  ADMIN_SECRET = pw;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadCodes();
+}
+
+async function generateCode() {
+  const plan = document.getElementById('plan-select').value;
+  const lineUserId = document.getElementById('line-user-id').value.trim();
+  const note = document.getElementById('note').value.trim();
+
+  const res = await fetch('/api/admin', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${ADMIN_SECRET}`,
+    },
+    body: JSON.stringify({ plan, lineUserId: lineUserId || null, note }),
+  });
+
+  if (!res.ok) {
+    if (res.status === 401) return alert('密碼錯誤');
+    return alert('發生錯誤，請再試一次');
+  }
+
+  const data = await res.json();
+  document.getElementById('code-text').textContent = data.code;
+  const planNames = { starter: '入門方案', plan_a: '帶課陪跑方案A', plan_b: '帶課陪跑方案B' };
+  document.getElementById('code-plan').textContent = planNames[plan] + (lineUserId ? ' · 已自動推播給學員' : ' · 請手動傳給學員');
+  document.getElementById('code-display').style.display = 'block';
+
+  loadCodes();
+}
+
+function copyCode() {
+  const code = document.getElementById('code-text').textContent;
+  navigator.clipboard.writeText(code);
+  alert(`已複製：${code}`);
+}
+
+async function loadCodes() {
+  const res = await fetch('/api/admin', {
+    headers: { 'Authorization': `Bearer ${ADMIN_SECRET}` },
+  });
+
+  if (!res.ok) return;
+  const { codes } = await res.json();
+
+  if (!codes || codes.length === 0) {
+    document.getElementById('codes-table').innerHTML = '<div class="empty">還沒有驗證碼</div>';
+    return;
+  }
+
+  const planNames = { starter: '入門方案', plan_a: '方案A', plan_b: '方案B' };
+
+  const rows = codes.map(c => `
+    <tr>
+      <td><code style="font-size:15px; font-weight:700; letter-spacing:2px;">${c.code}</code>
+          <button class="btn-copy" onclick="navigator.clipboard.writeText('${c.code}')">複製</button></td>
+      <td><span class="badge badge-plan">${planNames[c.plan] || c.plan}</span></td>
+      <td><span class="badge ${c.used ? 'badge-used' : 'badge-unused'}">${c.used ? '✅ 已使用' : '⏳ 未使用'}</span></td>
+      <td>${c.note || '-'}</td>
+      <td style="color:#94a3b8">${c.usedAt ? new Date(c.usedAt).toLocaleString('zh-TW') : c.createdAt ? new Date(c.createdAt).toLocaleString('zh-TW') : '-'}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('codes-table').innerHTML = `
+    <table>
+      <thead><tr><th>驗證碼</th><th>方案</th><th>狀態</th><th>備註</th><th>時間</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "piano-line-bot",
+  "version": "1.0.0",
+  "description": "教會鋼琴手 LINE Bot 驗證碼系統",
+  "type": "module",
+  "dependencies": {
+    "@vercel/kv": "^1.0.0"
+  }
+}
