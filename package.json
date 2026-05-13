@@ -1,7 +1,7 @@
 {
   "name": "piano-line-bot",
   "version": "1.0.0",
-  "description": "教會鋼琴手 LINE Bot 驗證碼系統",
+  "description": "教會鋼琴 LINE Bot 驗證碼系統",
   "type": "module",
   "dependencies": {
     "@upstash/redis": "^1.31.0"
