@@ -13,7 +13,8 @@ function verifySignature(body, signature) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method === 'GET') return res.status(200).end();
+if (req.method !== 'POST') return res.status(405).end();
 
   const signature = req.headers['x-line-signature'];
   const rawBody = JSON.stringify(req.body);
