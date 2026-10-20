@@ -13,6 +13,7 @@ on:
       - feature/menu-durable-lock-20261021
       - feature/menu-readonly-recovery-dashboard-20261021
       - feature/richmenu-artwork-validation-20261021
+      - feature/detached-richmenu-provision-draft-20261021
   pull_request:
     paths:
       - "lib/**"
@@ -42,6 +43,7 @@ jobs:
           node --check lib/line-menu-switch-adapter.js
           node --check lib/menu-recovery-inspector.js
           node --check lib/menu-backup-service.js
+          node --check lib/detached-richmenu-provision.js
           node --check lib/line-login.js
           node --check lib/session.js
           node --check api/auth/line/start.js

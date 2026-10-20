@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import {Redis} from '@upstash/redis';
+import {prepareUnlinkedTestMenu} from '../lib/detached-richmenu-provision.js';
 import {saveExistingPersonalMenu} from '../lib/menu-backup-service.js';
 import {getPersonalMenuFromLine} from '../lib/line-menu-read.js';
 import {inspectMenuRecovery} from '../lib/menu-recovery-inspector.js';
@@ -57,6 +58,24 @@ export default async function handler(req,res) {
         getPersonalMenu:userId=>getPersonalMenuFromLine(userId)
       });
       return res.json({menuBackup});
+    }
+    if (payload.action === 'provision_test_menu') {
+      // Creates and uploads an UNLINKED test menu only. No user/all or user
+      // link endpoints. Requires an extra opt-in and an exact approved PNG SHA.
+      if (process.env.RICH_MENU_PROVISION_MODE !== 'enabled') {
+        return res.json({richMenuProvision:{status:'provision_disabled'}});
+      }
+      const base64=payload.imageBase64;
+      if (typeof base64!=='string' || base64.length>200000 ||
+          !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) {
+        return res.json({richMenuProvision:{status:'invalid_uploaded_image'}});
+      }
+      const image=Buffer.from(base64,'base64');
+      const db=Redis.fromEnv();
+      const richMenuProvision=await prepareUnlinkedTestMenu({
+        env:process.env,image,db,allowCreate:true
+      });
+      return res.json({richMenuProvision});
     }
     if (payload.action === 'inspect_menu_recovery') {
       // Strictly read-only. Inspection never clears locks or changes LINE menus.
