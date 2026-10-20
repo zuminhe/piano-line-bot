@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "purpose": "staging-single-user-rich-menu-visual-asset",
+  "artworkFilename": "piano_richmenu_six_cell_test_2500x1686.png",
+  "renderer": "scripts/generate-richmenu-test-image.py",
+  "mimeType": "image/png",
+  "width": 2500,
+  "height": 1686,
+  "fileBytes": 127044,
+  "sha256": "5f757ef5c8331e1604933891e9e2f2391a219025e5769c0c37f6018cca2b11fe",
+  "actionCell": {"x":0,"y":0,"width":833,"height":843},
+  "visualCellColumns": [0,833,1666,2500],
+  "visualCellRows": [0,843,1686],
+  "inactiveCells": 5,
+  "notes": "The PNG is a separately downloadable artifact; GitHub stores the renderer and metadata, not the PNG binary. No menu created or linked."
+}
