@@ -1,0 +1,14 @@
+# 開發分支驗收清單
+- [ ] Node.js 執行 node --test test/access.test.js 成功。
+- [ ] 確認 GitHub main 沒有被修改，PR 仍為 Draft。
+- [ ] 實際 LINE 真實 webhook 簽章有效，偽造簽章被拒。
+- [ ] Redis 正確支援 NX/EX、HSET/HGETALL、Lua EVAL，驗證碼同時兌換只成功一位。
+- [ ] 8 碼驗證碼 7 天失效，輸入 13 次/小時鎖定。
+- [ ] 手動核對訂單後後台產生碼，學生 LINE 輸入後個人選單變更。
+- [ ] 失敗的 Rich Menu API 能在後台重試，不應聲稱成功。
+- [ ] 人工補開、撤銷，以及同一學員有多個單元的權限累加。
+- [ ] 陪練訂閱到期後有效權限停止，選單到期同步尚未實作。
+- [ ] Portaly webhook 503 且不能誤開通學生。
+- [ ] Mac/Windows 會員登入、LIFF、影片播放權限尚未實作：正式上線前另外驗收。
+- [ ] 手機 LINE 與外部瀏覽器皆實測。
+- [ ] 部署前更換所有曾經在聊天/截圖/文件中暴露的密鑰與 access token。

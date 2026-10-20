@@ -1,0 +1,37 @@
+name: Member access tests
+on:
+  push:
+    branches:
+      - feature/member-access-hardening-20261020
+  pull_request:
+    paths:
+      - "lib/**"
+      - "api/**"
+      - "test/**"
+      - ".github/workflows/member-access-tests.yml"
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: node --test test/*.test.js
+      - run: |
+          node --check api/webhook.js
+          node --check api/admin.js
+          node --check api/portaly-webhook.js
+          node --check lib/store.js
+          node --check lib/line.js
+          node --check lib/line-login.js
+          node --check lib/session.js
+          node --check api/auth/line/start.js
+          node --check api/auth/line/callback.js
+          node --check api/auth/line/liff.js
+          node --check api/auth/logout.js
+          node --check api/student/me.js
+          node --check api/student/config.js
