@@ -10,6 +10,7 @@ on:
       - feature/menu-backup-readonly-integration-20261021
       - feature/menu-switch-restore-simulation-20261021
       - feature/menu-line-adapter-recovery-20261021
+      - feature/menu-durable-lock-20261021
   pull_request:
     paths:
       - "lib/**"
