@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const html=readFileSync(new URL('../admin.html',import.meta.url),'utf8');
 test('rich menu sync has inline accessible status area',()=>{
  assert.match(html,/id="menuSyncStatus"[^>]*role="status"/);
- assert.match(html,/const feedback=\$\('menuSyncStatus'\)/);
+ assert.match(html,/feedback=\$\('menuSyncStatus'\)/);
 });
 test('blocked responses and success are labelled distinctly',()=>{
  for(const status of ['disabled','not_allowed','test_user_not_configured','not_configured','invalid_menu_id','linked']){
