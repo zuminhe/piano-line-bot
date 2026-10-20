@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>終極和弦伴奏公式｜我的學習中心</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Segoe UI",sans-serif;color:#183354;background:#f3f7fc}
+*{box-sizing:border-box}body{margin:0}header{background:linear-gradient(110deg,#122848,#305b86);color:white;padding:28px 20px}
+header>div,main{max-width:980px;margin:auto}h1{font-size:clamp(25px,5vw,36px);margin:10px 0}
+main{padding:26px 18px 80px}p{line-height:1.65} .muted{color:#63748b} .white{color:#d9e5f5}
+.card{background:white;border:1px solid #dfe9f3;border-radius:16px;padding:23px;margin:18px 0;box-shadow:0 5px 20px #1234560a}
+.card h2{margin:0 0 12px} button,.btn{display:inline-block;background:#183e70;color:white;border:0;border-radius:9px;padding:12px 18px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none}
+button.ghost{background:#edf3fa;color:#173d68} .units{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.unit{border:1px solid #dce5ed;border-radius:13px;padding:18px;background:#fcfdff}
+.unit.locked{opacity:.67;background:#f5f7fa}
+.unit strong{display:block;margin-bottom:6px}.eyebrow{font-size:12px;letter-spacing:.07em;color:#607d9a}
+.tag{display:inline-block;border-radius:20px;padding:4px 9px;background:#e7f1fb;color:#27578a;font-size:12px;font-weight:600}
+.tag.locked{background:#e8ecf1;color:#626e7b}
+#dashboard,#loginPanel,#errorPanel{display:none}#notification{min-height:22px}
+@media(max-width:600px){.units{grid-template-columns:1fr}.card{padding:18px}}
+</style>
+</head>
+<body>
+<header><div><div class="eyebrow white">何祖民・鋼琴伴奏教學</div><h1>終極和弦伴奏公式</h1><p class="white">每一步理解，都能回到琴鍵上。</p></div></header>
+<main>
+<section class="card" id="loading"><h2>正在確認登入狀態…</h2><p class="muted">請稍候。</p></section>
+<section class="card" id="loginPanel">
+ <h2>歡迎來到學習中心</h2><p>使用 LINE 帳號登入後，即可查看自己已開通的課程單元。iPhone 與 Mac 共用相同學員資格。</p>
+ <a class="btn" href="/api/auth/line/start">使用 LINE 帳號登入</a>
+ <p class="muted">如果你剛購買課程，請先到 LINE 官方帳號輸入購課驗證碼；這個網站不會要求你的 LINE 密碼。</p>
+</section>
+<section id="dashboard">
+  <div class="card"><h2 id="welcome">歡迎回來</h2><p class="muted">以下是你的課程開通狀態。尚未開放的單元不會提供課程內容。</p>
+  <button class="ghost" id="logout">登出</button></div>
+  <div class="card"><h2>我的課程</h2><div class="units" id="units"></div></div>
+  <div class="card"><h2>和弦陪練服務</h2><p id="coaching"></p></div>
+  <div class="card"><h2>課程影片與講義</h2><p class="muted">此頁為會員資格驗證測試版。真正的影片播放器、課程進度及教材下載尚未上線；完成權限驗證與影片託管設定後才會開放。</p></div>
+</section>
+<section class="card" id="errorPanel"><h2>暫時無法讀取學員資料</h2><p id="errorText"></p><button onclick="location.reload()">重新整理</button></section>
+<p id="notification" role="status" aria-live="polite"></p>
+</main>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+const $=x=>document.getElementById(x);
+const lessons=['基礎樂理','認識和弦','和弦變化','和弦應用'];
+function show(section){for(const id of ['loading','loginPanel','dashboard','errorPanel'])$(id).style.display=(id===section?'block':'none')}
+function showUnits(access){
+ const parent=$('units');parent.replaceChildren();
+ for(let i=1;i<=4;i++){
+   const allowed=access.units.includes(i),box=document.createElement('div');box.className='unit'+(allowed?'':' locked');
+   const title=document.createElement('strong');title.textContent=String(i).padStart(2,'0')+'｜'+lessons[i-1];box.appendChild(title);
+   const p=document.createElement('span');p.className='tag'+(allowed?'':' locked');p.textContent=allowed?'已開通':'尚未購買';box.appendChild(p);
+   parent.appendChild(box);
+ }
+ $('coaching').textContent=access.coaching?'陪練訂閱有效（服務功能尚在開發中）':'尚未訂閱陪練服務。';
+}
+async function studentMe(){
+ const res=await fetch('/api/student/me',{credentials:'same-origin',cache:'no-store'});
+ if(res.status===401)return null;
+ if(!res.ok)throw Error('會員系統目前無法連線，請稍後再試。');
+ return res.json();
+}
+async function initLiff(){
+ // LIFF initialization works only for the registered endpoint and its subpaths.
+ // The external browser can always use regular LINE Login instead.
+ const res=await fetch('/api/student/config',{cache:'no-store'});
+ if(!res.ok)return;
+ const config=await res.json();
+ if(!config.liffId || !window.liff)return;
+ try{
+   await liff.init({liffId:config.liffId});
+   if(!liff.isLoggedIn())return;
+   const idToken=liff.getIDToken();
+   if(!idToken)return;
+   const login=await fetch('/api/auth/line/liff',{
+     method:'POST',headers:{'Content-Type':'application/json'},
+     credentials:'same-origin',body:JSON.stringify({idToken})
+   });
+   if(!login.ok)throw Error('LIFF 身分驗證失敗');
+ }catch(e){
+   console.warn('LIFF login not completed:',e.message);
+ }
+}
+async function boot(){
+ try{
+   let data=await studentMe();
+   if(!data){await initLiff();data=await studentMe()}
+   if(!data){show('loginPanel');return}
+   $('welcome').textContent='歡迎回來'+(data.name?'，'+data.name:'')+'！';
+   showUnits(data.access);
+   show('dashboard');
+ }catch(e){$('errorText').textContent=e.message;show('errorPanel')}
+}
+$('logout').addEventListener('click',async()=>{
+ try{
+   const response=await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});
+   if(!response.ok)throw Error('登出失敗');
+   // LINE app may immediately re-login using the still-valid LIFF ID token.
+   // Redirect to a separate signed-out page rather than reinitializing LIFF.
+   location.replace('/signed-out');
+ }catch(e){$('notification').textContent=e.message}
+});
+boot();
+</script>
+</body>
+</html>
