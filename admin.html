@@ -33,6 +33,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;
 <p id="menuSyncStatus" class="hint" role="status" aria-live="polite">尚未執行圖文選單同步。</p>
 <div><button id="backupPersonalMenu" class="secondary">唯讀備份目前個人圖文選單</button></div>
 <p id="menuBackupStatus" class="hint" role="status" aria-live="polite">備份功能預設關閉，尚未查詢 LINE。</p>
+<div><button id="inspectMenuRecovery" class="secondary">唯讀檢查選單異常狀態</button></div>
+<p id="menuRecoveryStatus" class="hint" role="status" aria-live="polite">尚未檢查；不會自動解鎖或更換選單。</p>
 <p class="hint">人工補開需要正確的 LINE userId；學員可以先輸入驗證碼自動綁定。</p><div id="member"></div>
 </section>
 <section><h2>最近產生的驗證紀錄</h2><button id="refresh" class="secondary">重新整理</button><div id="history"></div></section>
@@ -144,6 +146,33 @@ $('backupPersonalMenu').onclick=async()=>{
  }catch(error){
   feedback.textContent='備份操作失敗：'+error.message;feedback.className='error';
  }finally{btn.disabled=false}
+};
+$('inspectMenuRecovery').onclick=async()=>{
+ const button=$('inspectMenuRecovery'), feedback=$('menuRecoveryStatus');
+ if(button.disabled)return;
+ button.disabled=true;feedback.className='hint';feedback.textContent='正在唯讀檢查選單與操作紀錄…';
+ try{
+  const result=await api('POST',null,{action:'inspect_menu_recovery',userId:userId()});
+  const r=result?.menuRecovery||{};
+  const messages={
+   recovery_inspection_disabled:'安全阻擋：唯讀恢復檢查尚未啟用。',
+   disabled:'安全阻擋：測試模式未啟用。',
+   not_allowed:'安全阻擋：帳號不在測試白名單。',
+   test_user_not_configured:'安全阻擋：白名單帳號設定不完整。',
+   recovery_record_unavailable:'無法讀取備份或操作紀錄，停止處理。',
+   recovery_record_unverified:'備份與操作紀錄不符合，禁止後續選單操作。',
+   reader_unavailable:'缺少 LINE 唯讀查詢功能。',
+   line_status_unknown:'無法確認 LINE 目前選單，請勿進行切換或還原。',
+   original_current_no_write_needed:'已確認目前為原有選單；沒有修改任何設定。',
+   test_menu_current_manual_restore_review:'目前仍顯示測試選單；需要人工核對後才能還原。',
+   unexpected_menu_current_do_not_overwrite:'發現非預期選單，禁止自動覆寫。'
+  };
+  const explanation=messages[r.status]||'狀態無法辨認，請停止進一步操作。';
+  const lockText=typeof r.lockPresent==='boolean' ? (r.lockPresent?'目前有安全鎖，禁止直接再次修改。':'目前未偵測到安全鎖。') : '';
+  feedback.textContent=explanation+(r.journalPhase?' 操作階段：'+r.journalPhase+'。':'')+lockText;
+  feedback.className=r.status==='original_current_no_write_needed'?'ok':'blocked';
+ }catch(error){feedback.textContent='檢查失敗：'+error.message;feedback.className='error'}
+ finally{button.disabled=false}
 };
 async function loadHistory(){
  const data=await api('GET',{action:'vouchers'});
