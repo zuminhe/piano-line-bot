@@ -8,6 +8,7 @@ on:
       - feature/menu-restore-snapshot-20261020
       - feature/menu-backup-restore-api-20261020
       - feature/menu-backup-readonly-integration-20261021
+      - feature/menu-switch-restore-simulation-20261021
   pull_request:
     paths:
       - "lib/**"
@@ -33,6 +34,7 @@ jobs:
           node --check lib/store.js
           node --check lib/line.js
           node --check lib/line-menu-read.js
+          node --check lib/menu-switch-service.js
           node --check lib/menu-backup-service.js
           node --check lib/line-login.js
           node --check lib/session.js
