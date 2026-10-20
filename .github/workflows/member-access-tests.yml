@@ -6,6 +6,7 @@ on:
       - feature/admin-menu-feedback-20261020
       - feature/single-user-test-menu-20261020
       - feature/menu-restore-snapshot-20261020
+      - feature/menu-backup-restore-api-20261020
   pull_request:
     paths:
       - "lib/**"
