@@ -68,8 +68,9 @@ test('after uncertain activation failure, original snapshot remains and restore 
  assert.equal(line.linked,fresh);
  assert.equal(JSON.parse(db.m.get(backupKey(user))).previousPersonalMenuId,old);
  line.linkPersonalMenu=async(_,id)=>{line.linked=id;return {status:200}};
- assert.equal((await restoreSingleUserOriginalMenu({userId:user,env,db,line})).status,'original_menu_restored');
- assert.equal(line.linked,old);
+ // Quarantine unknown external results: a human must inspect before any write.
+ assert.equal((await restoreSingleUserOriginalMenu({userId:user,env,db,line})).status,'another_operation_in_progress_or_recovery_required');
+ assert.equal(line.linked,fresh);
 });
 test('refuse rollback if another operator changed current menu',async()=>{
  const db=store();await db.init();const line=fakeLine();
