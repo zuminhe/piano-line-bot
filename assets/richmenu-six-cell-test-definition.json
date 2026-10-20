@@ -1,0 +1,24 @@
+{
+  "size": {
+    "width": 2500,
+    "height": 1686
+  },
+  "selected": false,
+  "name": "Piano-student-staging-one-user-test",
+  "chatBarText": "測試選單",
+  "areas": [
+    {
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 833,
+        "height": 843
+      },
+      "action": {
+        "type": "uri",
+        "label": "我的課程",
+        "uri": "https://liff.line.me/2009925919-tfNYEEmH"
+      }
+    }
+  ]
+}
