@@ -31,6 +31,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;
 <label for="userId">LINE userId（以 U 開頭）</label><input id="userId" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
 <div><button id="lookup">查詢學員</button><button id="grant">人工補開所選方案</button><button id="sync" class="secondary">重新同步圖文選單</button></div>
 <p id="menuSyncStatus" class="hint" role="status" aria-live="polite">尚未執行圖文選單同步。</p>
+<div><button id="backupPersonalMenu" class="secondary">唯讀備份目前個人圖文選單</button></div>
+<p id="menuBackupStatus" class="hint" role="status" aria-live="polite">備份功能預設關閉，尚未查詢 LINE。</p>
 <p class="hint">人工補開需要正確的 LINE userId；學員可以先輸入驗證碼自動綁定。</p><div id="member"></div>
 </section>
 <section><h2>最近產生的驗證紀錄</h2><button id="refresh" class="secondary">重新整理</button><div id="history"></div></section>
@@ -114,6 +116,34 @@ $('sync').onclick=async()=>{
   feedback.textContent='同步請求失敗：'+error.message;feedback.className='error';
   status('選單同步請求失敗',true);
  }finally{button.disabled=false}
+};
+$('backupPersonalMenu').onclick=async()=>{
+ const btn=$('backupPersonalMenu'), feedback=$('menuBackupStatus');
+ if(btn.disabled)return;
+ if(!confirm('僅讀取你指定的 LINE 帳號個人選單，並在獨立測試資料庫儲存原選單記錄（不會修改任何 LINE 選單）。確定執行？'))return;
+ btn.disabled=true;
+ feedback.className='hint';feedback.textContent='正在確認唯讀備份設定…';
+ try{
+  const d=await api('POST',null,{action:'backup_personal_menu',userId:userId()});
+  const messages={
+   backup_tools_disabled:'安全阻擋：唯讀備份功能尚未啟用。',
+   disabled:'安全阻擋：測試模式未啟用。',
+   not_allowed:'安全阻擋：這個 LINE 帳號不在測試白名單。',
+   line_token_not_configured:'尚未設定 LINE Access Token，沒有呼叫 LINE。',
+   already_saved:'備份已存在；為安全起見不會覆寫。',
+   snapshot_saved:'已儲存並驗證原個人選單的備份；未修改 LINE 選單。',
+   ambiguous_404:'LINE 回傳 404，原因不明，已停止；沒有產生備份。',
+   unverified:'LINE 回傳資訊不足，已停止；沒有產生備份。',
+   line_read_unavailable:'LINE 查詢失敗或逾時，沒有產生備份。',
+   line_invalid_response:'LINE 回傳格式無法確認，沒有產生備份。',
+   reader_unavailable:'系統無法讀取選單，沒有產生備份。',
+   snapshot_verification_failed:'資料庫備份驗證失敗，請停止後續切換。',
+  };
+  feedback.textContent=messages[d?.menuBackup?.status]||'無法確認備份結果，請勿切換圖文選單。';
+  feedback.className=d?.menuBackup?.status==='snapshot_saved'?'ok':'blocked';
+ }catch(error){
+  feedback.textContent='備份操作失敗：'+error.message;feedback.className='error';
+ }finally{btn.disabled=false}
 };
 async function loadHistory(){
  const data=await api('GET',{action:'vouchers'});

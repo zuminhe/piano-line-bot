@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {saveExistingPersonalMenu} from '../lib/menu-backup-service.js';
 const user='U'+'a'.repeat(32), other='U'+'b'.repeat(32);
 const menu='richmenu-'+'1'.repeat(32);
-const env={RICH_MENU_BACKUP_TOOLS:'enabled',RICH_MENU_TEST_MODE:'enabled',RICH_MENU_TEST_USER_ID:user};
+const env={RICH_MENU_BACKUP_TOOLS:'enabled',RICH_MENU_TEST_MODE:'enabled',RICH_MENU_TEST_USER_ID:user,LINE_CHANNEL_ACCESS_TOKEN:'fake-test-token'};
 function memoryDb(){
  const records=new Map();
  return {records,async get(key){return records.get(key)},async set(key,value,opts){
