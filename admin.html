@@ -35,6 +35,11 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;
 <p id="menuBackupStatus" class="hint" role="status" aria-live="polite">備份功能預設關閉，尚未查詢 LINE。</p>
 <div><button id="inspectMenuRecovery" class="secondary">唯讀檢查選單異常狀態</button></div>
 <p id="menuRecoveryStatus" class="hint" role="status" aria-live="polite">尚未檢查；不會自動解鎖或更換選單。</p>
+<div><label for="testMenuImage">純測試選單 PNG（只建立，不綁定任何學員）</label>
+<input id="testMenuImage" type="file" accept="image/png" aria-describedby="testMenuHelp">
+<p id="testMenuHelp" class="hint">僅接受先前核准的 2500 × 1686 PNG；此功能預設關閉，不會改動正式選單。</p>
+<button id="provisionTestMenu" class="secondary">建立未綁定的測試圖文選單</button></div>
+<p id="testMenuProvisionStatus" class="hint" role="status" aria-live="polite">尚未建立；需要另外啟用安全開關。</p>
 <p class="hint">人工補開需要正確的 LINE userId；學員可以先輸入驗證碼自動綁定。</p><div id="member"></div>
 </section>
 <section><h2>最近產生的驗證紀錄</h2><button id="refresh" class="secondary">重新整理</button><div id="history"></div></section>
@@ -173,6 +178,52 @@ $('inspectMenuRecovery').onclick=async()=>{
   feedback.className=r.status==='original_current_no_write_needed'?'ok':'blocked';
  }catch(error){feedback.textContent='檢查失敗：'+error.message;feedback.className='error'}
  finally{button.disabled=false}
+};
+$('provisionTestMenu').onclick=async()=>{
+ const button=$('provisionTestMenu'),feedback=$('testMenuProvisionStatus');
+ if(button.disabled)return;
+ const file=$('testMenuImage').files?.[0];
+ if(!file || file.type!=='image/png' || file.size>1024*1024){
+  feedback.className='blocked';
+  feedback.textContent='請先選取先前核准的 PNG 測試圖檔。';
+  return;
+ }
+ if(!confirm('這只會在 LINE Messaging API 建立一個不綁定任何好友、也不設為全體預設的測試選單。確定要建立？'))return;
+ button.disabled=true;feedback.className='hint';feedback.textContent='正在驗證圖片與建立未綁定測試選單…';
+ try{
+  const base64=await new Promise((resolve,reject)=>{
+   const reader=new FileReader();
+   reader.onload=()=>resolve(String(reader.result).split(',')[1]||'');
+   reader.onerror=()=>reject(Error('圖片讀取失敗'));
+   reader.readAsDataURL(file);
+  });
+  const response=await api('POST',null,{action:'provision_test_menu',imageBase64:base64});
+  const result=response?.richMenuProvision||{};
+  const messages={
+   provision_disabled:'安全阻擋：建立測試選單功能尚未啟用。',
+   test_mode_disabled:'安全阻擋：圖文選單測試模式未啟用。',
+   single_test_user_not_configured:'安全阻擋：指定測試帳號白名單尚未完成。',
+   liff_id_mismatch:'安全阻擋：LIFF ID 與核准的測試版本不一致。',
+   line_token_not_configured:'尚未設定 LINE Messaging API Token；沒有建立選單。',
+   image_not_approved:'上傳的圖片與已核准版本不一致；沒有建立選單。',
+   invalid_uploaded_image:'圖片格式不正確；沒有建立選單。',
+   provision_journal_unavailable:'無法確認測試操作紀錄，已停止。',
+   provision_journal_unverified:'操作紀錄無法確認，請勿重試。',
+   existing_provision_attempt_manual_review:'已有測試選單建立紀錄，為防重複建立請先檢查。',
+   existing_menu_list_unverified:'無法確認 LINE 現有選單，已停止。',
+   test_menu_already_exists_review_first:'LINE 已存在同名測試選單，請先檢查，不會重複建立。',
+   definition_line_validation_failed:'LINE 未通過選單設定檢查，沒有建立選單。',
+   creation_result_unknown_do_not_retry:'建立結果無法確認，請不要重按，需檢查 LINE。',
+   created_but_image_unverified_do_not_retry:'LINE 已建立選單，但圖片上傳狀態不明，請勿重試。',
+   created_but_definition_unverified_do_not_link:'LINE 已建立選單，但規格未通過複核，不能綁定學員。',
+   detached_test_menu_created_image_uploaded:'未綁定的測試選單與圖片已建立；尚未綁定任何學員。'
+  };
+  feedback.textContent=(messages[result.status]||'結果無法確認，請停止操作。')+
+    (result.richMenuId?' 選單 ID：'+result.richMenuId:'');
+  feedback.className=result.status==='detached_test_menu_created_image_uploaded'?'ok':'blocked';
+ }catch(error){
+  feedback.textContent='建立請求失敗，請勿立即重試：'+error.message;feedback.className='error';
+ }finally{button.disabled=false}
 };
 async function loadHistory(){
  const data=await api('GET',{action:'vouchers'});
