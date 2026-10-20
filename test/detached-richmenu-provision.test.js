@@ -12,6 +12,11 @@ const env={
 const image=Buffer.from('simulated-test-bytes');
 const testOnlyValidator=()=>({status:'approved'});
 const definition=buildSingleUserTestMenu(env.LINE_LIFF_ID);
+function journalDb(){
+ const records=new Map();
+ return {records,async get(k){return records.get(k)||null},
+  async set(k,v,opts){if(opts?.nx && records.has(k))return null;records.set(k,v);return 'OK'}};
+}
 function expectedLineResponse(requests,overrides={}) {
  return async (url,opts)=>{
   requests.push({url,opts});
@@ -62,7 +67,7 @@ test('disabled provision, wrong whitelist or missing token never use network',as
 });
 test('creates & uploads ONLY detached test menu, never links a user or sets global default',async()=>{
  const requests=[];
- const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,
+ const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,db:journalDb(),
   imageValidator:testOnlyValidator,fetchImpl:expectedLineResponse(requests)});
  assert.deepEqual(result,{status:'detached_test_menu_created_image_uploaded',richMenuId:menuId});
  assert.deepEqual(requests.map(x=>x.opts.method),['GET','POST','POST','POST','GET']);
@@ -78,7 +83,7 @@ test('creates & uploads ONLY detached test menu, never links a user or sets glob
 });
 test('duplicate definition halts before creating new menu',async()=>{
  const requests=[];
- const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,
+ const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,db:journalDb(),
   imageValidator:testOnlyValidator,fetchImpl:expectedLineResponse(requests,{
    existing:[{richMenuId:menuId,name:definition.name}]
   })});
@@ -87,14 +92,14 @@ test('duplicate definition halts before creating new menu',async()=>{
 });
 test('creation result uncertain never triggers upload or automatic retry',async()=>{
  const requests=[];
- const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,
+ const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,db:journalDb(),
   imageValidator:testOnlyValidator,fetchImpl:expectedLineResponse(requests,{createStatus:500})});
  assert.equal(result.status,'creation_result_unknown_do_not_retry');
  assert.equal(requests.length,3);
 });
 test('image upload failure returns created menu ID but does not link anyone',async()=>{
  const requests=[];
- const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,
+ const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,db:journalDb(),
   imageValidator:testOnlyValidator,fetchImpl:expectedLineResponse(requests,{imageStatus:503})});
  assert.deepEqual(result,{status:'created_but_image_unverified_do_not_retry',richMenuId:menuId});
  assert.equal(requests.length,4);
@@ -102,8 +107,22 @@ test('image upload failure returns created menu ID but does not link anyone',asy
 test('definition read-back mismatch refuses claiming success',async()=>{
  const requests=[];
  const wrong={...definition,selected:true};
- const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,
+ const result=await prepareUnlinkedTestMenu({env,image,allowCreate:true,db:journalDb(),
   imageValidator:testOnlyValidator,fetchImpl:expectedLineResponse(requests,{getMenu:wrong})});
  assert.equal(result.status,'created_but_definition_unverified_do_not_link');
  assert.equal(result.richMenuId,menuId);
+});
+
+test('durable provision journal prevents second creation after first attempt',async()=>{
+ const records=journalDb(),requests=[];
+ const first=await prepareUnlinkedTestMenu({env,image,allowCreate:true,db:records,
+  imageValidator:testOnlyValidator,fetchImpl:expectedLineResponse(requests)});
+ assert.equal(first.status,'detached_test_menu_created_image_uploaded');
+ assert.equal(records.records.size,1);
+ const current=[...records.records.values()][0];
+ assert.equal(JSON.parse(current).status,'image_uploaded_definition_verified');
+ const second=await prepareUnlinkedTestMenu({env,image,allowCreate:true,db:records,
+  imageValidator:testOnlyValidator,fetchImpl:async()=>{throw Error('should not call')}});
+ assert.equal(second.status,'existing_provision_attempt_manual_review');
+ assert.equal(requests.filter(x=>x.url.endsWith('/richmenu')&&x.opts.method==='POST').length,1);
 });
