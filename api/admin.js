@@ -1,4 +1,7 @@
 import crypto from 'node:crypto';
+import {Redis} from '@upstash/redis';
+import {saveExistingPersonalMenu} from '../lib/menu-backup-service.js';
+import {getPersonalMenuFromLine} from '../lib/line-menu-read.js';
 import { issueCode, addGrant, memberSummary, listMembers, revokeGrant, listVoucherHistory, PLANS } from '../lib/store.js';
 import { syncRichMenu } from '../lib/line.js';
 function authorized(req) {
@@ -38,6 +41,20 @@ export default async function handler(req,res) {
       try { menuSync=(await syncRichMenu(userId,member.access)).status; }
       catch(e) { menuSync='error'; console.error('Menu sync failed',e.message); }
       return res.json({member,menuSync});
+    }
+    if (payload.action === 'backup_personal_menu') {
+      // This is a read-only LINE operation followed by a snapshot write to
+      // the staging Redis DB. It NEVER creates, links, unlinks or deletes menus.
+      if (process.env.RICH_MENU_BACKUP_TOOLS !== 'enabled') {
+        return res.json({menuBackup:{status:'backup_tools_disabled'}});
+      }
+      const db=Redis.fromEnv();
+      const menuBackup=await saveExistingPersonalMenu({
+        userId:payload.userId,
+        env:process.env,db,
+        getPersonalMenu:userId=>getPersonalMenuFromLine(userId)
+      });
+      return res.json({menuBackup});
     }
     if (payload.action === 'sync_menu') {
       const member=await memberSummary(payload.userId);
