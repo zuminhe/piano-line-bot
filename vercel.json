@@ -1,10 +1,57 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/api/webhook", "destination": "/api/webhook.js" },
-    { "source": "/api/admin", "destination": "/api/admin.js" },
-    { "source": "/api/portaly-webhook", "destination": "/api/portaly-webhook.js" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/", "destination": "/admin.html" }
+    {
+      "source": "/api/webhook",
+      "destination": "/api/webhook.js"
+    },
+    {
+      "source": "/api/admin",
+      "destination": "/api/admin.js"
+    },
+    {
+      "source": "/api/portaly-webhook",
+      "destination": "/api/portaly-webhook.js"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/api/auth/line/start",
+      "destination": "/api/auth/line/start.js"
+    },
+    {
+      "source": "/api/auth/line/callback",
+      "destination": "/api/auth/line/callback.js"
+    },
+    {
+      "source": "/api/auth/line/liff",
+      "destination": "/api/auth/line/liff.js"
+    },
+    {
+      "source": "/api/auth/logout",
+      "destination": "/api/auth/logout.js"
+    },
+    {
+      "source": "/api/student/me",
+      "destination": "/api/student/me.js"
+    },
+    {
+      "source": "/api/student/config",
+      "destination": "/api/student/config.js"
+    },
+    {
+      "source": "/student",
+      "destination": "/student.html"
+    },
+    {
+      "source": "/signed-out",
+      "destination": "/signed-out.html"
+    },
+    {
+      "source": "/",
+      "destination": "/admin.html"
+    }
   ]
 }
