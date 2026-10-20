@@ -4,6 +4,7 @@ on:
     branches:
       - feature/member-access-hardening-20261020
       - feature/admin-menu-feedback-20261020
+      - feature/single-user-test-menu-20261020
   pull_request:
     paths:
       - "lib/**"
