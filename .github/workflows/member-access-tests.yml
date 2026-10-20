@@ -7,6 +7,7 @@ on:
       - feature/single-user-test-menu-20261020
       - feature/menu-restore-snapshot-20261020
       - feature/menu-backup-restore-api-20261020
+      - feature/menu-backup-readonly-integration-20261021
   pull_request:
     paths:
       - "lib/**"
@@ -31,6 +32,8 @@ jobs:
           node --check api/portaly-webhook.js
           node --check lib/store.js
           node --check lib/line.js
+          node --check lib/line-menu-read.js
+          node --check lib/menu-backup-service.js
           node --check lib/line-login.js
           node --check lib/session.js
           node --check api/auth/line/start.js
