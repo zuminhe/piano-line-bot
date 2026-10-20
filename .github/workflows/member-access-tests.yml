@@ -12,6 +12,7 @@ on:
       - feature/menu-line-adapter-recovery-20261021
       - feature/menu-durable-lock-20261021
       - feature/menu-readonly-recovery-dashboard-20261021
+      - feature/richmenu-artwork-validation-20261021
   pull_request:
     paths:
       - "lib/**"
