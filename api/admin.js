@@ -2,6 +2,8 @@ import crypto from 'node:crypto';
 import {Redis} from '@upstash/redis';
 import {saveExistingPersonalMenu} from '../lib/menu-backup-service.js';
 import {getPersonalMenuFromLine} from '../lib/line-menu-read.js';
+import {inspectMenuRecovery} from '../lib/menu-recovery-inspector.js';
+import {createTestMenuLineAdapter} from '../lib/line-menu-switch-adapter.js';
 import { issueCode, addGrant, memberSummary, listMembers, revokeGrant, listVoucherHistory, PLANS } from '../lib/store.js';
 import { syncRichMenu } from '../lib/line.js';
 function authorized(req) {
@@ -55,6 +57,19 @@ export default async function handler(req,res) {
         getPersonalMenu:userId=>getPersonalMenuFromLine(userId)
       });
       return res.json({menuBackup});
+    }
+    if (payload.action === 'inspect_menu_recovery') {
+      // Strictly read-only. Inspection never clears locks or changes LINE menus.
+      if (process.env.RICH_MENU_RECOVERY_INSPECTION !== 'enabled') {
+        return res.json({menuRecovery:{status:'recovery_inspection_disabled'}});
+      }
+      const db=Redis.fromEnv();
+      const adapter=createTestMenuLineAdapter({env:process.env});
+      const menuRecovery=await inspectMenuRecovery({
+        userId:payload.userId,env:process.env,db,
+        getPersonalMenu:userId=>adapter.getPersonalMenu(userId)
+      });
+      return res.json({menuRecovery});
     }
     if (payload.action === 'sync_menu') {
       const member=await memberSummary(payload.userId);
