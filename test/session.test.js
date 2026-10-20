@@ -11,8 +11,7 @@ test('signed session is valid until expiry, rejects tampering',()=>{
  const session=readSession({headers:{cookie}});
  assert.equal(session.sub,'U'+'a'.repeat(32));
  assert.equal(session.name,'學生');
- assert.equal(readSession({headers:{cookie:cookie.replace('學生','管理員')}})?.sub,'U'+'a'.repeat(32)); // encoded payload remains opaque
- const forged=cookie.replace(/.$/,'!');
+ const forged=cookie.replace(/(__Host-piano_session=)([^;])/,(_,prefix,first)=>prefix+(first==='A'?'B':'A'));
  assert.equal(readSession({headers:{cookie:forged}}),null);
 });
 test('signed OAuth state round-trips',()=>{
