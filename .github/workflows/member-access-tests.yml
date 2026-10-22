@@ -14,6 +14,7 @@ on:
       - feature/menu-readonly-recovery-dashboard-20261021
       - feature/richmenu-artwork-validation-20261021
       - feature/detached-richmenu-provision-draft-20261021
+      - feature/course-content-mvp-20261022
   pull_request:
     paths:
       - "lib/**"
@@ -52,3 +53,7 @@ jobs:
           node --check api/auth/logout.js
           node --check api/student/me.js
           node --check api/student/config.js
+          node --check api/student/unit.js
+          node --check api/student/lesson.js
+          node --check lib/course-content.js
+          node --check lib/course-store.js

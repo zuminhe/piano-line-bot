@@ -42,6 +42,22 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;
 <p id="testMenuProvisionStatus" class="hint" role="status" aria-live="polite">尚未建立；需要另外啟用安全開關。</p>
 <p class="hint">人工補開需要正確的 LINE userId；學員可以先輸入驗證碼自動綁定。</p><div id="member"></div>
 </section>
+<section><h2>課程影片與講義管理（測試版）</h2>
+<p class="hint">影片本身請上傳 YouTube 不公開或 Vimeo；此處儲存每堂課的名稱、影片連結及講義。最多可先建立每單元 8 個位置，實際課數之後可調整。未勾選上架時，學員無法播放。</p>
+<div class="row">
+ <div><label for="courseUnit">單元</label><select id="courseUnit"><option value="1">單元 1｜基礎樂理</option><option value="2">單元 2｜認識和弦</option><option value="3">單元 3｜和弦變化</option><option value="4">單元 4｜和弦應用</option></select></div>
+ <div><label for="courseNumber">課程位置</label><select id="courseNumber"><option value="1">第 01 課</option><option value="2">第 02 課</option><option value="3">第 03 課</option><option value="4">第 04 課</option><option value="5">第 05 課</option><option value="6">第 06 課</option><option value="7">第 07 課</option><option value="8">第 08 課</option></select></div>
+</div>
+<button id="loadCourseLesson" class="secondary">讀取這堂課</button>
+<label for="courseTitle">課程名稱</label><input id="courseTitle" maxlength="80" placeholder="例如：第 01 課｜正式課名">
+<label for="courseVideo">YouTube／Vimeo 影片網址</label><input id="courseVideo" type="url" placeholder="https://youtu.be/...">
+<label for="courseMaterials">講義分享網址（選填）</label><input id="courseMaterials" type="url" placeholder="https://drive.google.com/...">
+<label for="courseDescription">課程說明（選填）</label><textarea id="courseDescription" rows="4" maxlength="800" style="display:block;width:100%;max-width:750px;padding:12px;font:inherit;border:1px solid #c2cad6;border-radius:8px"></textarea>
+<label><input id="coursePublished" type="checkbox" style="width:auto;max-width:none;margin-right:8px">上架給已開通單元的學員觀看</label>
+<div><button id="saveCourseLesson">儲存這堂課</button></div>
+<p id="courseStatus" class="hint" role="status" aria-live="polite">請先點「讀取這堂課」，確認後再修改。未經上架的課程不會播放影片。</p>
+<p class="hint">注意：YouTube 不公開影片仍可經由網址分享；要限制嵌入網站請評估 Vimeo 的網域限制。</p>
+</section>
 <section><h2>最近產生的驗證紀錄</h2><button id="refresh" class="secondary">重新整理</button><div id="history"></div></section>
 </div>
 <p id="status" aria-live="polite"></p>
@@ -225,6 +241,38 @@ $('provisionTestMenu').onclick=async()=>{
   feedback.textContent='建立請求失敗，請勿立即重試：'+error.message;feedback.className='error';
  }finally{button.disabled=false}
 };
+function currentCourseLessonId(){
+ return 'u'+$('courseUnit').value+'-l'+String($('courseNumber').value).padStart(2,'0');
+}
+async function loadCourseLesson(){
+ const r=await api('GET',{action:'course_lesson',id:currentCourseLessonId()});
+ const l=r.lesson||{};
+ $('courseTitle').value=l.title||'';
+ $('courseVideo').value=l.videoUrl||'';
+ $('courseMaterials').value=l.materialsUrl||'';
+ $('courseDescription').value=l.description||'';
+ $('coursePublished').checked=l.published===true;
+ $('courseStatus').textContent='已讀取 '+currentCourseLessonId()+'。';
+ $('courseStatus').className='ok';
+}
+$('loadCourseLesson').onclick=()=>run(loadCourseLesson);
+$('saveCourseLesson').onclick=async()=>{
+ const btn=$('saveCourseLesson'),feedback=$('courseStatus');
+ if(btn.disabled)return;
+ const draft={id:currentCourseLessonId(),title:$('courseTitle').value,
+   videoUrl:$('courseVideo').value,materialsUrl:$('courseMaterials').value,
+   description:$('courseDescription').value,published:$('coursePublished').checked};
+ if(!confirm(draft.published?'要讓已購買這個單元的學員看到這堂影片嗎？':'確定儲存未上架的課程內容？'))return;
+ btn.disabled=true;feedback.textContent='正在儲存課程…';feedback.className='hint';
+ try{
+  const r=await api('POST',null,{action:'save_course_lesson',lesson:draft});
+  feedback.textContent='已儲存：'+r.lesson.title+(r.lesson.published?'（已上架）':'（尚未上架）');
+  feedback.className='ok';
+ }catch(e){feedback.textContent='儲存失敗：'+e.message;feedback.className='error'}
+ finally{btn.disabled=false}
+};
+$('courseUnit').addEventListener('change',()=>{$('courseStatus').textContent='已切換單元，請先讀取這堂課。';$('courseTitle').value='';$('courseVideo').value='';$('courseMaterials').value='';$('courseDescription').value='';$('coursePublished').checked=false});
+$('courseNumber').addEventListener('change',()=>{$('courseStatus').textContent='已切換課次，請先讀取這堂課。';$('courseTitle').value='';$('courseVideo').value='';$('courseMaterials').value='';$('courseDescription').value='';$('coursePublished').checked=false});
 async function loadHistory(){
  const data=await api('GET',{action:'vouchers'});
  const div=$('history');div.replaceChildren();

@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
 import {Redis} from '@upstash/redis';
+import {loadLesson,saveLesson} from '../lib/course-store.js';
+import {parseLessonId} from '../lib/course-content.js';
 import {prepareUnlinkedTestMenu} from '../lib/detached-richmenu-provision.js';
 import {saveExistingPersonalMenu} from '../lib/menu-backup-service.js';
 import {getPersonalMenuFromLine} from '../lib/line-menu-read.js';
@@ -24,10 +26,18 @@ export default async function handler(req,res) {
       if (req.query.action === 'member') return res.json(await memberSummary(String(req.query.userId || '')));
       if (req.query.action === 'members') return res.json({members:await listMembers()});
       if (req.query.action === 'vouchers') return res.json({codes:await listVoucherHistory()});
+      if (req.query.action === 'course_lesson') {
+        if (!parseLessonId(req.query.id)) return res.status(404).json({error:'LESSON_NOT_FOUND'});
+        return res.json({lesson:await loadLesson(Redis.fromEnv(),req.query.id)});
+      }
       return res.json({plans:PLANS, message:'Use action=member, members or vouchers'});
     }
     if (req.method !== 'POST') return res.status(405).end();
     const payload = req.body || {};
+    if (payload.action === 'save_course_lesson') {
+      const lesson=await saveLesson(Redis.fromEnv(),payload.lesson);
+      return res.json({lesson});
+    }
     if (payload.action === 'issue_code') {
       const result = await issueCode(payload);
       return res.json(result);
