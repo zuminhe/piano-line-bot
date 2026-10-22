@@ -42,6 +42,14 @@
       "destination": "/api/student/config.js"
     },
     {
+      "source": "/api/student/unit",
+      "destination": "/api/student/unit.js"
+    },
+    {
+      "source": "/api/student/lesson",
+      "destination": "/api/student/lesson.js"
+    },
+    {
       "source": "/student",
       "destination": "/student.html"
     },

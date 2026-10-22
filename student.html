@@ -1,58 +1,102 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>終極和弦伴奏公式｜我的學習中心</title>
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <style>
-:root{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Segoe UI",sans-serif;color:#183354;background:#f3f7fc}
-*{box-sizing:border-box}body{margin:0}header{background:linear-gradient(110deg,#122848,#305b86);color:white;padding:28px 20px}
-header>div,main{max-width:980px;margin:auto}h1{font-size:clamp(25px,5vw,36px);margin:10px 0}
-main{padding:26px 18px 80px}p{line-height:1.65} .muted{color:#63748b} .white{color:#d9e5f5}
-.card{background:white;border:1px solid #dfe9f3;border-radius:16px;padding:23px;margin:18px 0;box-shadow:0 5px 20px #1234560a}
-.card h2{margin:0 0 12px} button,.btn{display:inline-block;background:#183e70;color:white;border:0;border-radius:9px;padding:12px 18px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none}
-button.ghost{background:#edf3fa;color:#173d68} .units{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.unit{border:1px solid #dce5ed;border-radius:13px;padding:18px;background:#fcfdff}
-.unit.locked{opacity:.67;background:#f5f7fa}
-.unit strong{display:block;margin-bottom:6px}.eyebrow{font-size:12px;letter-spacing:.07em;color:#607d9a}
-.tag{display:inline-block;border-radius:20px;padding:4px 9px;background:#e7f1fb;color:#27578a;font-size:12px;font-weight:600}
-.tag.locked{background:#e8ecf1;color:#626e7b}
-#dashboard,#loginPanel,#errorPanel{display:none}#notification{min-height:22px}
-@media(max-width:600px){.units{grid-template-columns:1fr}.card{padding:18px}}
+:root{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Segoe UI",sans-serif;color:#173552;background:#f3f7fc}
+*{box-sizing:border-box}body{margin:0}
+header{background:linear-gradient(120deg,#112b4d,#35638b);color:#fff;padding:28px 20px 34px}
+header>div,main{max-width:980px;margin:auto}header h1{font-size:clamp(26px,5vw,38px);margin:13px 0 10px;letter-spacing:.025em}
+main{padding:22px 16px 90px}.white{color:#d9e9f7}.eyebrow{font-size:13px;letter-spacing:.08em}
+p{line-height:1.7}.muted{color:#60748c}
+.card{background:#fff;border:1px solid #dae6f1;border-radius:17px;padding:24px;margin:16px 0;box-shadow:0 6px 22px #17375509}
+.card h2{font-size:21px;margin:0 0 12px}.card h3{font-size:17px}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;background:#164673;color:#fff;border:1px solid transparent;border-radius:10px;padding:11px 16px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit}
+button:focus-visible,.btn:focus-visible{outline:3px solid #80b6ed;outline-offset:3px}
+button.ghost,.btn.ghost{background:#edf4fa;color:#17436e;border-color:#d6e7f7}
+button:disabled{cursor:not-allowed;opacity:.65}
+.units{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.unit{border:1px solid #d9e6f0;border-radius:14px;padding:19px;background:#fcfdff;color:#173552;text-align:left;display:flex;flex-direction:column;align-items:flex-start;min-height:148px;gap:8px;width:100%;box-shadow:none}
+.unit:not(:disabled):active{background:#eef6fd}.unit.locked{background:#f5f7fa;color:#53657a}
+.unit .unit-index{font-size:13px;color:#6885a1}.unit strong{font-size:18px;line-height:1.5}
+.tag{display:inline-block;border-radius:18px;padding:4px 10px;background:#e7f2fd;color:#205784;font-size:12px;font-weight:700}
+.tag.locked{background:#e8ecf1;color:#657484}.stack{display:flex;flex-direction:column;gap:11px}
+.lesson{width:100%;padding:18px;border:1px solid #dae5f0;border-radius:12px;text-decoration:none;color:#1b3b59;background:#fbfdff;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lesson strong{font-size:16px;line-height:1.5}.lesson small{display:block;margin-top:5px;color:#617791}
+.lesson .arrow{font-size:20px;color:#477eaf}
+.lesson.pending{color:#617791;background:#f8fafc}
+.lesson-link{margin-top:6px}
+.video{aspect-ratio:16/9;width:100%;background:#10263f;border-radius:13px;overflow:hidden;margin:19px 0}
+.video iframe{display:block;border:0;width:100%;height:100%}
+#dashboard,#loginPanel,#errorPanel,#unitPanel,#lessonPanel{display:none}
+#notification{min-height:22px}.helper{font-size:13px}
+@media(max-width:600px){.units{grid-template-columns:1fr}.card{padding:19px}.lesson{padding:15px}main{padding:16px 12px 70px}}
 </style>
 </head>
 <body>
-<header><div><div class="eyebrow white">何祖民・鋼琴伴奏教學</div><h1>終極和弦伴奏公式</h1><p class="white">每一步理解，都能回到琴鍵上。</p></div></header>
+<header><div><div class="eyebrow white">教會鋼琴｜祖民老師</div><h1>終極和弦伴奏公式</h1><p class="white">每一步理解，都能回到琴鍵上。</p></div></header>
 <main>
-<section class="card" id="loading"><h2>正在確認登入狀態…</h2><p class="muted">請稍候。</p></section>
+<section class="card" id="loading"><h2>正在確認登入狀態…</h2><p class="muted">正在安全讀取你的 LINE 身分與課程權限。</p></section>
 <section class="card" id="loginPanel">
- <h2>歡迎來到學習中心</h2><p>使用 LINE 帳號登入後，即可查看自己已開通的課程單元。iPhone 與 Mac 共用相同學員資格。</p>
+ <h2>歡迎來到學習中心</h2><p>使用 LINE 帳號登入後，即可查看自己已開通的課程。iPhone 與 Mac 共用相同學員資格。</p>
  <a class="btn" href="/api/auth/line/start">使用 LINE 帳號登入</a>
- <p class="muted">如果你剛購買課程，請先到 LINE 官方帳號輸入購課驗證碼；這個網站不會要求你的 LINE 密碼。</p>
+ <p class="muted helper">如果你剛購買課程，請先到 LINE 官方帳號輸入課程驗證碼。這裡不會要求你的 LINE 密碼。</p>
 </section>
-<section id="dashboard">
-  <div class="card"><h2 id="welcome">歡迎回來</h2><p class="muted">以下是你的課程開通狀態。尚未開放的單元不會提供課程內容。</p>
-  <button class="ghost" id="logout">登出</button></div>
-  <div class="card"><h2>我的課程</h2><div class="units" id="units"></div></div>
-  <div class="card"><h2>和弦陪練服務</h2><p id="coaching"></p></div>
-  <div class="card"><h2>課程影片與講義</h2><p class="muted">此頁為會員資格驗證測試版。真正的影片播放器、課程進度及教材下載尚未上線；完成權限驗證與影片託管設定後才會開放。</p></div>
-</section>
-<section class="card" id="errorPanel"><h2>暫時無法讀取學員資料</h2><p id="errorText"></p><button onclick="location.reload()">重新整理</button></section>
+<div id="dashboard">
+  <section class="card"><h2 id="welcome">歡迎回來</h2>
+    <p class="muted">只有已購買的單元可以進入課程列表；每堂影片上架後會出現在這裡。</p>
+    <button class="ghost" id="logout">登出學員中心</button>
+  </section>
+  <section class="card" id="overview"><h2>我的課程</h2><p class="muted">選擇已開通的單元，進入課程列表。</p><div class="units" id="units"></div>
+    <p class="muted helper">影片由 YouTube 或 Vimeo 播放；學員中心負責確認單元購買資格。</p>
+  </section>
+  <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
+    <h2 id="unitHeading" style="margin-top:20px"></h2>
+    <p class="muted">課程名稱與影片由老師逐堂上架；尚未上架的內容會明確標示。</p>
+    <div id="lessonList" class="stack"></div>
+  </section>
+  <section class="card" id="lessonPanel"><button class="ghost" id="backLessons">← 返回課程列表</button>
+    <h2 id="lessonHeading" style="margin-top:20px"></h2>
+    <p id="lessonDescription" class="muted"></p>
+    <div id="lessonVideo"></div>
+    <p id="lessonMessage" class="muted"></p>
+    <div id="lessonMaterial"></div>
+  </section>
+  <section class="card" id="coachingPanel"><h2>和弦陪練服務</h2><p id="coaching" class="muted"></p></section>
+</div>
+<section class="card" id="errorPanel"><h2>暫時無法讀取學員資料</h2><p id="errorText"></p><button id="retry">重新整理</button></section>
 <p id="notification" role="status" aria-live="polite"></p>
 </main>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 const $=x=>document.getElementById(x);
-const lessons=['基礎樂理','認識和弦','和弦變化','和弦應用'];
-function show(section){for(const id of ['loading','loginPanel','dashboard','errorPanel'])$(id).style.display=(id===section?'block':'none')}
-function showUnits(access){
+const names=['基礎樂理','認識和弦','和弦變化','和弦應用'];
+let myAccess=null,routeSerial=0;
+function show(section){
+  for(const id of ['loading','loginPanel','dashboard','errorPanel'])$(id).style.display=(id===section?'block':'none');
+}
+function errorMessage(s){$('notification').textContent=s}
+function tag(text,locked=false){
+ const e=document.createElement('span');e.className='tag'+(locked?' locked':'');e.textContent=text;return e;
+}
+function renderUnits(access){
  const parent=$('units');parent.replaceChildren();
  for(let i=1;i<=4;i++){
-   const allowed=access.units.includes(i),box=document.createElement('div');box.className='unit'+(allowed?'':' locked');
-   const title=document.createElement('strong');title.textContent=String(i).padStart(2,'0')+'｜'+lessons[i-1];box.appendChild(title);
-   const p=document.createElement('span');p.className='tag'+(allowed?'':' locked');p.textContent=allowed?'已開通':'尚未購買';box.appendChild(p);
-   parent.appendChild(box);
+  const allowed=access.units.includes(i),card=document.createElement('button');
+  card.type='button';card.className='unit'+(allowed?'':' locked');card.disabled=!allowed;
+  const number=document.createElement('span');number.className='unit-index';number.textContent='UNIT '+String(i).padStart(2,'0');card.appendChild(number);
+  const title=document.createElement('strong');title.textContent=names[i-1];card.appendChild(title);
+  card.appendChild(tag(allowed?'已開通・進入課程':'尚未購買',!allowed));
+  if(allowed)card.onclick=()=>{location.hash='unit/'+i};
+  parent.appendChild(card);
  }
- $('coaching').textContent=access.coaching?'陪練訂閱有效（服務功能尚在開發中）':'尚未訂閱陪練服務。';
+ $('coaching').textContent=access.coaching?'陪練訂閱有效（服務功能尚在規劃中）':'尚未訂閱陪練服務。';
+}
+function panel(which){
+ for(const id of ['overview','unitPanel','lessonPanel'])$(id).style.display=id===which?'block':'none';
+ $('coachingPanel').style.display=which==='overview'?'block':'none';
 }
 async function studentMe(){
  const res=await fetch('/api/student/me',{credentials:'same-origin',cache:'no-store'});
@@ -61,45 +105,104 @@ async function studentMe(){
  return res.json();
 }
 async function initLiff(){
- // LIFF initialization works only for the registered endpoint and its subpaths.
- // The external browser can always use regular LINE Login instead.
  const res=await fetch('/api/student/config',{cache:'no-store'});
  if(!res.ok)return;
  const config=await res.json();
- if(!config.liffId || !window.liff)return;
+ if(!config.liffId||!window.liff)return;
  try{
-   await liff.init({liffId:config.liffId});
-   if(!liff.isLoggedIn())return;
-   const idToken=liff.getIDToken();
-   if(!idToken)return;
-   const login=await fetch('/api/auth/line/liff',{
-     method:'POST',headers:{'Content-Type':'application/json'},
-     credentials:'same-origin',body:JSON.stringify({idToken})
-   });
-   if(!login.ok)throw Error('LIFF 身分驗證失敗');
- }catch(e){
-   console.warn('LIFF login not completed:',e.message);
+  await liff.init({liffId:config.liffId});
+  if(!liff.isLoggedIn())return;
+  const idToken=liff.getIDToken();
+  if(!idToken)return;
+  const response=await fetch('/api/auth/line/liff',{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   credentials:'same-origin',body:JSON.stringify({idToken})
+  });
+  if(!response.ok)throw Error('LIFF 身分驗證失敗');
+ }catch(e){console.warn('LIFF login not completed:',e.message)}
+}
+async function authorizedJson(path){
+ const res=await fetch(path,{credentials:'same-origin',cache:'no-store'});
+ if(res.status===401)throw Error('登入已過期，請重新開啟學員中心。');
+ if(res.status===403)throw Error('尚未購買這個單元，不能存取課程內容。');
+ if(!res.ok)throw Error('課程資料暫時無法讀取，請再試一次。');
+ return res.json();
+}
+function protectedError(err,target){
+ target.replaceChildren();
+ const p=document.createElement('p');p.className='muted';p.textContent=err.message;target.appendChild(p);
+}
+async function renderRoute(){
+ if(!myAccess)return;
+ const serial=++routeSerial,hash=decodeURIComponent(location.hash.slice(1));
+ const unitMatch=/^unit\/([1-4])$/.exec(hash);
+ const lessonMatch=/^lesson\/(u[1-4]-l0[1-8])$/.exec(hash);
+ if(unitMatch){
+  const unit=Number(unitMatch[1]);panel('unitPanel');
+  $('unitHeading').textContent='單元 '+unit+'｜'+names[unit-1];
+  const target=$('lessonList');target.textContent='正在讀取課程列表…';
+  try{
+   const data=await authorizedJson('/api/student/unit?unit='+unit);
+   if(serial!==routeSerial)return;
+   target.replaceChildren();
+   for(const lesson of data.lessons){
+    const row=document.createElement('a');row.className='lesson'+(lesson.published?'':' pending');
+    row.href='/student#lesson/'+lesson.id;
+    const copy=document.createElement('div');
+    const heading=document.createElement('strong');heading.textContent=lesson.title;copy.appendChild(heading);
+    const detail=document.createElement('small');detail.textContent=lesson.published?'點擊觀看課程影片':'尚未上架・點擊查看說明';copy.appendChild(detail);
+    row.appendChild(copy);
+    const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent='›';row.appendChild(arrow);
+    target.appendChild(row);
+   }
+  }catch(e){if(serial===routeSerial)protectedError(e,target)}
+ }else if(lessonMatch){
+  const id=lessonMatch[1];panel('lessonPanel');
+  $('backLessons').onclick=()=>{location.hash='unit/'+id[1]};
+  $('lessonHeading').textContent='正在讀取課程…';$('lessonDescription').textContent='';
+  $('lessonVideo').replaceChildren();$('lessonMessage').textContent='';$('lessonMaterial').replaceChildren();
+  try{
+   const data=await authorizedJson('/api/student/lesson?id='+encodeURIComponent(id));
+   if(serial!==routeSerial)return;
+   const item=data.lesson;$('lessonHeading').textContent=item.title;
+   $('lessonDescription').textContent=item.description||'';
+   if(item.published&&item.embedUrl){
+    const video=document.createElement('div');video.className='video';
+    const frame=document.createElement('iframe');
+    frame.src=item.embedUrl;frame.title='課程影片：'+item.title;
+    frame.loading='lazy';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;
+    frame.referrerPolicy='strict-origin-when-cross-origin';video.appendChild(frame);$('lessonVideo').appendChild(video);
+    if(item.materialsUrl){
+     const a=document.createElement('a');a.className='btn ghost';a.href=item.materialsUrl;
+     a.target='_blank';a.rel='noopener noreferrer';a.textContent='開啟課程講義 ↗';$('lessonMaterial').appendChild(a);
+    }
+   }else{
+    $('lessonMessage').textContent='這堂課目前尚未上架影片，老師新增內容後就能從這裡觀看。';
+   }
+  }catch(e){if(serial===routeSerial){$('lessonHeading').textContent='無法開啟課程';$('lessonMessage').textContent=e.message}}
+ }else{
+  panel('overview');
  }
 }
 async function boot(){
  try{
-   let data=await studentMe();
-   if(!data){await initLiff();data=await studentMe()}
-   if(!data){show('loginPanel');return}
-   $('welcome').textContent='歡迎回來'+(data.name?'，'+data.name:'')+'！';
-   showUnits(data.access);
-   show('dashboard');
+  let data=await studentMe();
+  if(!data){await initLiff();data=await studentMe()}
+  if(!data){show('loginPanel');return}
+  $('welcome').textContent='歡迎回來'+(data.name?'，'+data.name:'')+'！';
+  myAccess=data.access;renderUnits(myAccess);show('dashboard');await renderRoute();
  }catch(e){$('errorText').textContent=e.message;show('errorPanel')}
 }
-$('logout').addEventListener('click',async()=>{
+$('backUnits').onclick=()=>{location.hash='/'};
+$('retry').onclick=()=>location.reload();
+$('logout').onclick=async()=>{
  try{
-   const response=await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});
-   if(!response.ok)throw Error('登出失敗');
-   // LINE app may immediately re-login using the still-valid LIFF ID token.
-   // Redirect to a separate signed-out page rather than reinitializing LIFF.
-   location.replace('/signed-out');
- }catch(e){$('notification').textContent=e.message}
-});
+  const r=await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'});
+  if(!r.ok)throw Error('登出失敗');
+  location.replace('/signed-out');
+ }catch(e){errorMessage(e.message)}
+};
+window.addEventListener('hashchange',()=>{if(myAccess)renderRoute()});
 boot();
 </script>
 </body>
