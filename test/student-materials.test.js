@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 // No live Redis requests: production dependencies load with harmless stub settings.
 process.env.UPSTASH_REDIS_REST_URL||='https://localhost.invalid';
 process.env.UPSTASH_REDIS_REST_TOKEN||='test-placeholder';
@@ -60,4 +61,16 @@ test('invalid unit and non-GET methods are rejected',async()=>{
  const post=response();
  await serveStudentMaterials(req(null,'POST'),post,{readIdentity:identity});
  assert.equal(post.statusCode,405);
+});
+
+test('learner homepage places handouts after the four-unit course grid',()=>{
+ const html=readFileSync(new URL('../student.html',import.meta.url),'utf8');
+ const overview=html.indexOf('id="overview"');
+ const grid=html.indexOf('id="units"');
+ const materials=html.indexOf('href="/student#materials"');
+ const nextPanel=html.indexOf('id="materialsPanel"');
+ assert.ok(overview>=0 && overview<grid && grid<materials && materials<nextPanel);
+ assert.equal((html.match(/href="\/student#materials"/g)||[]).length,1);
+ assert.match(html,/id="resourcesHeading">課程講義/);
+ assert.doesNotMatch(html,/紙本寄送方案仍在規劃中/);
 });
