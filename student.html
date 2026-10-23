@@ -87,10 +87,69 @@ button,.btn{font-size:18px;font-weight:600;line-height:1.4;padding:14px 19px;min
 
 .video mux-player{display:block;width:100%;height:100%;--controls-backdrop-color:rgba(11,34,53,.8)}
 #lessonVideo .video{min-height:180px}
+/* Staging student dashboard refinement: compact hero, readable units, clear actions. */
+header{padding:19px 20px 23px}
+header h1{font-size:clamp(30px,3.65vw,42px);margin:9px 0 4px;line-height:1.35}
+header p{margin:0;font-size:16px;line-height:1.7}
+.brand-row{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.header-logout{display:none;background:transparent;border:1px solid rgba(231,242,253,.5);color:#eef7ff;border-radius:8px;padding:7px 12px;min-height:36px;font-size:13px;font-weight:500;white-space:nowrap}
+.header-logout:hover{background:rgba(255,255,255,.12)}
+main{padding-top:14px}.card{margin:12px 0}
+#overview{padding:25px 29px 29px}
+.dashboard-intro{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:5px 20px}
+#overview .dashboard-intro h2{font-size:clamp(19px,2vw,23px);margin:0;font-weight:600}
+.intro-tip{font-size:15px;margin:0}
+.overview-heading{display:flex;justify-content:space-between;align-items:baseline;gap:8px 16px;margin-top:23px}
+#overview .overview-heading h2{font-size:clamp(24px,2.3vw,30px);margin:0}
+.unit-total{font-size:14px}
+.units{margin-top:15px;gap:13px}
+.unit{min-height:164px;padding:19px 22px;gap:6px;border:1px solid #cfdfef;background:#fcfdff;border-radius:13px;transition:background .18s,border-color .18s,box-shadow .18s,transform .18s}
+.unit:hover:not(:disabled){background:#f3f9ff;border-color:#86b2d7;box-shadow:0 8px 22px rgba(26,66,108,.11);transform:translateY(-2px)}
+.unit:focus-visible{outline:3px solid #80b6ed;outline-offset:3px}
+.unit:active:not(:disabled){transform:translateY(0)}
+.unit-head{width:100%;display:flex;justify-content:space-between;align-items:center}
+.unit .unit-index{font-size:13px;letter-spacing:.04em;color:#6585a3}
+.unit-symbol{font-size:19px;color:#396e99;font-weight:600;line-height:1}
+.unit strong{font-size:21px;line-height:1.5}
+.unit-count{font-size:14px;color:#617b93}
+.unit-action{font-size:15px;color:#205c8b;font-weight:600;margin-top:auto;padding-top:7px}
+.unit.locked{background:#f5f7fa;color:#3f546a;border-color:#e0e8f0;opacity:1;cursor:default}
+.unit.locked strong{color:#51667b}
+.unit.locked .unit-index,.unit.locked .unit-count{color:#62768b}
+.unit.locked .unit-symbol{font-size:15px;filter:grayscale(1);opacity:.7}
+.unit.locked .unit-action{color:#62768b;font-weight:500}
+.lesson-view header{padding:13px 20px}
+.lesson-view header h1{font-size:clamp(23px,2.5vw,31px)}
+#resumeLearning[hidden]{display:none}
+@media(max-width:767px){
+  .dashboard-intro{display:block}
+  .intro-tip{margin-top:3px}
+  .overview-heading{margin-top:18px}
+}
+@media(max-width:600px){
+  header{padding:14px 16px 18px}
+  header h1{font-size:clamp(28px,8vw,34px);margin:7px 0 3px}
+  header p{font-size:14px}
+  .brand-row .eyebrow{font-size:12px;line-height:1.5;letter-spacing:.04em}
+  .header-logout{font-size:12px;padding:6px 9px;min-height:33px}
+  #overview{padding:19px 18px}
+  #overview .dashboard-intro h2{font-size:20px}
+  .intro-tip{font-size:14px}
+  #overview .overview-heading h2{font-size:24px}
+  .unit-total{font-size:12px}
+  .units{gap:10px;margin-top:13px}
+  .unit{padding:17px 19px;min-height:149px;gap:6px}
+  .unit strong{font-size:20px}
+  .unit-action{font-size:14px}
+  .lesson-view header{padding:11px 16px}
+  .lesson-view header h1{font-size:26px}
+}
+@media(prefers-reduced-motion:reduce){.unit{transition:none}.unit:hover:not(:disabled){transform:none}}
+
 </style>
 </head>
 <body>
-<header><div><div class="eyebrow white">教會鋼琴 PIANO LESSONS｜祖民老師</div><h1>終極和弦伴奏公式</h1><p class="white">每一步理解，都能回到琴鍵上。</p></div></header>
+<header><div><div class="brand-row"><div class="eyebrow white">教會鋼琴 PIANO LESSONS｜祖民老師</div><button class="header-logout" id="logout" type="button">登出</button></div><h1>終極和弦伴奏公式</h1><p class="white">每一步理解，都能回到琴鍵上。</p></div></header>
 <main>
 <section class="card" id="loading"><h2>正在確認登入狀態…</h2><p class="muted">正在安全讀取你的 LINE 身分與課程權限。</p></section>
 <section class="card" id="loginPanel">
@@ -99,12 +158,12 @@ button,.btn{font-size:18px;font-weight:600;line-height:1.4;padding:14px 19px;min
  <p class="muted helper">如果你剛購買課程，請先到 LINE 官方帳號輸入課程驗證碼。這裡不會要求你的 LINE 密碼。</p>
 </section>
 <div id="dashboard">
-  <section class="card"><h2 id="welcome">歡迎回來</h2>
-    <p class="muted">只有已購買的單元可以進入課程列表；每堂影片上架後會出現在這裡。</p>
-    <button class="ghost" id="logout">登出學員中心</button>
-  </section>
-  <section class="card" id="overview"><h2>我的課程</h2><p class="muted">選擇已開通的單元，進入正式課程列表（目前共 23 堂）。</p><div class="units" id="units"></div>
-    <p class="muted helper">影片可使用 YouTube、Vimeo 或 Mux 簽署播放；學員中心負責確認單元購買資格。</p>
+  <section class="card" id="overview">
+    <div class="dashboard-intro"><h2 id="welcome">歡迎回來</h2><p class="intro-tip muted">選擇已開通的單元，開始今天的鋼琴練習。</p></div>
+    <!-- Reserved for verified lesson-progress-based resume learning, without fabricated progress. -->
+    <div id="resumeLearning" hidden></div>
+    <div class="overview-heading"><h2>我的課程</h2><span class="muted unit-total">共 4 個單元 · 23 堂課</span></div>
+    <div class="units" id="units"></div>
   </section>
   <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
     <h2 id="unitHeading" style="margin-top:20px"></h2>
@@ -159,9 +218,13 @@ function renderUnits(access){
  for(let i=1;i<=4;i++){
   const allowed=access.units.includes(i),card=document.createElement('button');
   card.type='button';card.className='unit'+(allowed?'':' locked');card.disabled=!allowed;
-  const number=document.createElement('span');number.className='unit-index';number.textContent='UNIT '+String(i).padStart(2,'0');card.appendChild(number);
+  card.setAttribute('aria-label','單元 '+i+' '+names[i-1]+'，'+lessonCounts[i-1]+' 堂，'+(allowed?'已開通，進入課程':'尚未開通'));
+  const head=document.createElement('span');head.className='unit-head';
+  const number=document.createElement('span');number.className='unit-index';number.textContent='UNIT '+String(i).padStart(2,'0');head.appendChild(number);
+  const symbol=document.createElement('span');symbol.className='unit-symbol';symbol.setAttribute('aria-hidden','true');symbol.textContent=allowed?'↗':'🔒';head.appendChild(symbol);card.appendChild(head);
   const title=document.createElement('strong');title.textContent=names[i-1];card.appendChild(title);
-  card.appendChild(tag((allowed?'已開通・進入課程':'尚未購買')+'｜'+lessonCounts[i-1]+' 堂',!allowed));
+  const count=document.createElement('span');count.className='unit-count';count.textContent=lessonCounts[i-1]+' 堂課';card.appendChild(count);
+  const action=document.createElement('span');action.className='unit-action';action.textContent=allowed?'進入課程 →':'尚未開通';card.appendChild(action);
   if(allowed)card.onclick=()=>{location.hash='unit/'+i};
   parent.appendChild(card);
  }
@@ -363,7 +426,7 @@ async function boot(){
   if(!data){await initLiff();data=await studentMe()}
   if(!data){show('loginPanel');return}
   $('welcome').textContent='歡迎回來'+(data.name?'，'+data.name:'')+'！';
-  myAccess=data.access;renderUnits(myAccess);show('dashboard');await renderRoute();
+  myAccess=data.access;renderUnits(myAccess);$('logout').style.display='inline-flex';show('dashboard');await renderRoute();
  }catch(e){$('errorText').textContent=e.message;show('errorPanel')}
 }
 $('backUnits').onclick=()=>{location.hash='/'};
