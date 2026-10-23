@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {serveStudentProgress} from '../api/student/progress.js';
+import {serveStudentProgress} from '../lib/http/student-progress.js';
 import {saveLesson} from '../lib/course-store.js';
-import {progressKey} from '../api/student/progress.js';
+import {progressKey} from '../lib/http/student-progress.js';
 
 const u={sub:'U'+'c'.repeat(32)};
 const membership={access:{units:[1,2],coaching:false,hasCourse:true}};

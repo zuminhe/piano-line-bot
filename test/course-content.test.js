@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {COURSE_UNITS,parseLessonId,lessonId,canViewUnit,videoEmbed,validateLessonDraft,safeMaterialUrl} from '../lib/course-content.js';
 import {normalizeStoredLesson,placeholderLesson,studentLessonSummary,studentLessonDetail,listUnitLessons,saveLesson} from '../lib/course-store.js';
-import {serveStudentUnit} from '../api/student/unit.js';
-import {serveStudentLesson} from '../api/student/lesson.js';
+import {serveStudentUnit} from '../lib/http/student-unit.js';
+import {serveStudentLesson} from '../lib/http/student-lesson.js';
 import {readFileSync} from 'node:fs';
 
 const sampleId='u1-l01';

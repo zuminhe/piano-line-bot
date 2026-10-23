@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import {videoEmbed,validateLessonDraft} from '../lib/course-content.js';
 import {studentLessonDetail,saveLesson} from '../lib/course-store.js';
-import {serveStudentPlayback} from '../api/student/playback.js';
+import {serveStudentPlayback} from '../lib/http/student-playback.js';
 import {muxSigningConfigured,signMuxPlayback,MUX_TOKEN_TTL_SECONDS} from '../lib/mux-signed-playback.js';
 import {quotePlan,verifiedPaymentMatches} from '../lib/checkout-pricing.js';
-import {serveCheckoutDraft} from '../api/checkout/draft.js';
-import quoteHandler from '../api/checkout/quote.js';
+import {serveCheckoutDraft} from '../lib/http/checkout-draft.js';
+import quoteHandler from '../lib/http/checkout-quote.js';
 
 const user={sub:'U'+'e'.repeat(32)};
 const another={sub:'U'+'f'.repeat(32)};
