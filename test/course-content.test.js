@@ -31,12 +31,16 @@ function draft(id=sampleId){
  return {id,title:'第一課｜認識鍵盤',description:'從音名開始',videoUrl:url,
   materialsUrl:'https://drive.google.com/file/d/abc/view',published:true};
 }
-test('course uses known units and stable 8 draft slots, not fictional published lessons',()=>{
+test('course uses official 23-lesson catalog and stable draft IDs',()=>{
  assert.deepEqual(COURSE_UNITS.map(x=>x.name),['基礎樂理','認識和弦','和弦變化','和弦應用']);
- assert.deepEqual(parseLessonId('u4-l08'),{id:'u4-l08',unit:4,number:8});
+ assert.deepEqual(parseLessonId('u4-l06'),{id:'u4-l06',unit:4,number:6});
  assert.equal(parseLessonId('u4-l09'),null);
+ assert.equal(parseLessonId('u2-l06'),null);
  assert.equal(parseLessonId('../u1-l01'),null);
  assert.equal(lessonId(1,1),sampleId);
+ assert.equal(COURSE_UNITS.reduce((n,u)=>n+u.lessonCount,0),23);
+ assert.equal(placeholderLesson('u2-l01').title,'延音踏板');
+ assert.equal(placeholderLesson(sampleId).title,'彈奏姿勢');
  assert.equal(placeholderLesson(sampleId).published,false);
  assert.equal(placeholderLesson(sampleId).embedUrl,null);
  assert.equal(canViewUnit({units:[1,2]},1),true);
@@ -77,11 +81,27 @@ test('admin can save and reread one lesson in storage; other slots remain drafts
  const saved=await saveLesson(db,draft());
  assert.equal(saved.title,'第一課｜認識鍵盤');
  const lessons=await listUnitLessons(db,1);
- assert.equal(lessons.length,8);
+ assert.equal(lessons.length,6);
  assert.equal(lessons[0].published,true);
  assert.equal(lessons[1].published,false);
+ assert.equal(lessons[1].title,'基礎樂理-五線譜與音名');
  await saveLesson(db,{...draft(),published:false});
  assert.equal((await listUnitLessons(db,1))[0].published,false);
+});
+test('unit lengths match instructor 6,5,6,6 and previously published test survives catalog upgrade',async()=>{
+ const db=dbMock();
+ await saveLesson(db,draft());
+ const expected=[6,5,6,6];
+ for(let unit=1;unit<=4;unit++){
+  const items=await listUnitLessons(db,unit);
+  assert.equal(items.length,expected[unit-1]);
+ }
+ const lesson=await listUnitLessons(db,1);
+ assert.equal(lesson[0].title,'第一課｜認識鍵盤'); // prior stored metadata preserved
+ assert.equal(lesson[0].published,true);
+ assert.equal(lesson[0].sourceId,'1-1');
+ assert.equal(lesson[5].sourceId,'1-6');
+ assert.equal(parseLessonId('u2-l08'),null);
 });
 test('unauthenticated and unpurchased unit APIs refuse access without reading lesson storage',async()=>{
  let storageReads=0;
