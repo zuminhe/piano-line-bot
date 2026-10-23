@@ -9,6 +9,7 @@
 *{box-sizing:border-box}body{margin:0}
 header{background:linear-gradient(120deg,#112b4d,#35638b);color:#fff;padding:28px 20px 34px}
 header>div,main{max-width:980px;margin:auto}header h1{font-size:clamp(26px,5vw,38px);margin:13px 0 10px;letter-spacing:.025em}
+.lesson-view header{padding-top:16px;padding-bottom:16px}.lesson-view header h1{font-size:clamp(21px,3vw,28px);margin:5px 0}.lesson-view header p{display:none}
 main{padding:22px 16px 90px}.white{color:#d9e9f7}.eyebrow{font-size:13px;letter-spacing:.08em}
 p{line-height:1.7}.muted{color:#60748c}
 .card{background:#fff;border:1px solid #dae6f1;border-radius:17px;padding:24px;margin:16px 0;box-shadow:0 6px 22px #17375509}
@@ -30,13 +31,28 @@ button:disabled{cursor:not-allowed;opacity:.65}
 .lesson-link{margin-top:6px}
 .video{aspect-ratio:16/9;width:100%;background:#10263f;border-radius:13px;overflow:hidden;margin:19px 0}
 .video iframe{display:block;border:0;width:100%;height:100%}
+.learning-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;margin-top:18px}
+.learning-main,.learning-side{min-width:0}.learning-side{border:1px solid #e0e9f2;border-radius:13px;background:#f8fafc;padding:16px;align-self:start}
+.learning-side h3{margin:0 0 14px;font-size:17px}
+.playlist{display:flex;flex-direction:column;gap:5px;max-height:55vh;overflow:auto}
+.playlist a{border-radius:8px;padding:11px 12px;color:#254666;text-decoration:none;font-size:14px;line-height:1.5;display:flex;gap:10px;align-items:center}
+.playlist a[aria-current=page]{background:#dfeffa;font-weight:700;color:#123c65}
+.playlist a:focus-visible{outline:3px solid #80b6ed}
+.playlist .done{color:#29704e;font-size:13px}
+.complete-panel{border:1px solid #d9e6f0;border-radius:13px;padding:16px;margin-top:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.complete-panel button[aria-pressed=true]{background:#1e7054}
+.progress-count{font-size:14px;color:#456888;margin:10px 0}
+#courseSource{font-size:13px;color:#69829a}
+@media(min-width:768px){main{max-width:1180px}.learning-layout{grid-template-columns:minmax(0,1.85fr) minmax(250px,1fr);gap:24px}.learning-side{position:sticky;top:16px}.playlist{max-height:67vh}.card{padding:27px}}
+@media(min-width:1100px){.learning-layout{grid-template-columns:minmax(0,2.2fr) minmax(270px,1fr)}}
+@media(max-width:767px){.learning-side{padding:12px}.learning-side details summary{cursor:pointer;font-weight:650;padding:4px}.playlist{max-height:260px}.complete-panel{align-items:stretch}.complete-panel button{flex:1}}
 #dashboard,#loginPanel,#errorPanel,#unitPanel,#lessonPanel{display:none}
 #notification{min-height:22px}.helper{font-size:13px}
-@media(max-width:600px){.units{grid-template-columns:1fr}.card{padding:19px}.lesson{padding:15px}main{padding:16px 12px 70px}}
+@media(max-width:600px){.units{grid-template-columns:1fr}.card{padding:19px}.lesson{padding:15px}main{padding:16px 12px 70px}.lesson-view main{padding-top:12px}.lesson-view .card{padding:15px}}
 </style>
 </head>
 <body>
-<header><div><div class="eyebrow white">教會鋼琴｜祖民老師</div><h1>終極和弦伴奏公式</h1><p class="white">每一步理解，都能回到琴鍵上。</p></div></header>
+<header><div><div class="eyebrow white">教會鋼琴 PIANO LESSONS｜祖民老師</div><h1>終極和弦伴奏公式</h1><p class="white">每一步理解，都能回到琴鍵上。</p></div></header>
 <main>
 <section class="card" id="loading"><h2>正在確認登入狀態…</h2><p class="muted">正在安全讀取你的 LINE 身分與課程權限。</p></section>
 <section class="card" id="loginPanel">
@@ -49,20 +65,36 @@ button:disabled{cursor:not-allowed;opacity:.65}
     <p class="muted">只有已購買的單元可以進入課程列表；每堂影片上架後會出現在這裡。</p>
     <button class="ghost" id="logout">登出學員中心</button>
   </section>
-  <section class="card" id="overview"><h2>我的課程</h2><p class="muted">選擇已開通的單元，進入課程列表。</p><div class="units" id="units"></div>
+  <section class="card" id="overview"><h2>我的課程</h2><p class="muted">選擇已開通的單元，進入正式課程列表（目前共 23 堂）。</p><div class="units" id="units"></div>
     <p class="muted helper">影片由 YouTube 或 Vimeo 播放；學員中心負責確認單元購買資格。</p>
   </section>
   <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
     <h2 id="unitHeading" style="margin-top:20px"></h2>
-    <p class="muted">課程名稱與影片由老師逐堂上架；尚未上架的內容會明確標示。</p>
+    <p id="unitProgress" class="progress-count" aria-live="polite"></p>
+    <p class="muted">依照正式課程目錄排列。已錄製且上架的內容可播放，其他課程會標示尚未上架。</p>
     <div id="lessonList" class="stack"></div>
   </section>
   <section class="card" id="lessonPanel"><button class="ghost" id="backLessons">← 返回課程列表</button>
-    <h2 id="lessonHeading" style="margin-top:20px"></h2>
-    <p id="lessonDescription" class="muted"></p>
-    <div id="lessonVideo"></div>
-    <p id="lessonMessage" class="muted"></p>
-    <div id="lessonMaterial"></div>
+    <div class="learning-layout">
+      <div class="learning-main">
+        <p id="courseSource" aria-label="課程編號"></p>
+        <h2 id="lessonHeading"></h2>
+        <p id="lessonDescription" class="muted"></p>
+        <div id="lessonVideo"></div>
+        <p id="lessonMessage" class="muted"></p>
+        <div id="lessonMaterial"></div>
+        <div class="complete-panel">
+          <button type="button" id="completeLesson" aria-pressed="false" disabled>完成這堂課</button>
+          <span id="completionMessage" class="muted">看完並練習後，可以手動標記已完成。</span>
+        </div>
+        <p class="helper muted">學習進度會記錄在你的 LINE 學員身分下；不同裝置登入同一帳號即可接續。</p>
+      </div>
+      <aside class="learning-side" aria-label="同單元課程導覽">
+        <h3>課程目錄</h3>
+        <p id="sideProgress" class="progress-count"></p>
+        <div id="playlist" class="playlist"></div>
+      </aside>
+    </div>
   </section>
   <section class="card" id="coachingPanel"><h2>和弦陪練服務</h2><p id="coaching" class="muted"></p></section>
 </div>
@@ -73,6 +105,7 @@ button:disabled{cursor:not-allowed;opacity:.65}
 <script>
 const $=x=>document.getElementById(x);
 const names=['基礎樂理','認識和弦','和弦變化','和弦應用'];
+const lessonCounts=[6,5,6,6];
 let myAccess=null,routeSerial=0;
 function show(section){
   for(const id of ['loading','loginPanel','dashboard','errorPanel'])$(id).style.display=(id===section?'block':'none');
@@ -88,7 +121,7 @@ function renderUnits(access){
   card.type='button';card.className='unit'+(allowed?'':' locked');card.disabled=!allowed;
   const number=document.createElement('span');number.className='unit-index';number.textContent='UNIT '+String(i).padStart(2,'0');card.appendChild(number);
   const title=document.createElement('strong');title.textContent=names[i-1];card.appendChild(title);
-  card.appendChild(tag(allowed?'已開通・進入課程':'尚未購買',!allowed));
+  card.appendChild(tag((allowed?'已開通・進入課程':'尚未購買')+'｜'+lessonCounts[i-1]+' 堂',!allowed));
   if(allowed)card.onclick=()=>{location.hash='unit/'+i};
   parent.appendChild(card);
  }
@@ -134,12 +167,18 @@ function protectedError(err,target){
 }
 async function renderRoute(){
  if(!myAccess)return;
- const serial=++routeSerial,hash=decodeURIComponent(location.hash.slice(1));
+ const serial=++routeSerial;
+ let hash='';
+ try{hash=decodeURIComponent(location.hash.slice(1))}catch{hash='/'};
+ // Remove the iframe on navigation: a hidden iframe may continue playing audio.
+ $('lessonVideo').replaceChildren();
  const unitMatch=/^unit\/([1-4])$/.exec(hash);
  const lessonMatch=/^lesson\/(u[1-4]-l0[1-8])$/.exec(hash);
+ document.body.classList.toggle('lesson-view',Boolean(lessonMatch));
  if(unitMatch){
-  const unit=Number(unitMatch[1]);panel('unitPanel');
+  const unit=Number(unitMatch[1]);panel('unitPanel');window.scrollTo(0,0);
   $('unitHeading').textContent='單元 '+unit+'｜'+names[unit-1];
+  $('unitProgress').textContent='這個單元共有 '+lessonCounts[unit-1]+' 堂課';
   const target=$('lessonList');target.textContent='正在讀取課程列表…';
   try{
    const data=await authorizedJson('/api/student/unit?unit='+unit);
@@ -149,24 +188,42 @@ async function renderRoute(){
     const row=document.createElement('a');row.className='lesson'+(lesson.published?'':' pending');
     row.href='/student#lesson/'+lesson.id;
     const copy=document.createElement('div');
-    const heading=document.createElement('strong');heading.textContent=lesson.title;copy.appendChild(heading);
+    const heading=document.createElement('strong');heading.textContent=lesson.sourceId+'｜'+lesson.title;copy.appendChild(heading);
     const detail=document.createElement('small');detail.textContent=lesson.published?'點擊觀看課程影片':'尚未上架・點擊查看說明';copy.appendChild(detail);
     row.appendChild(copy);
     const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent='›';row.appendChild(arrow);
     target.appendChild(row);
    }
+   try{
+    const progress=await authorizedJson('/api/student/progress?unit='+unit);
+    if(serial!==routeSerial)return;
+    const completed=new Set(progress.completed||[]);
+    for(const row of target.querySelectorAll('a.lesson')){
+      const id=row.getAttribute('href').split('/').pop();
+      if(completed.has(id)){
+       row.querySelector('small').textContent='✓ 已完成・點擊複習';
+      }
+    }
+    $('unitProgress').textContent='已完成 '+completed.size+' / '+data.lessons.length+' 堂（由學員手動標記）';
+   }catch(e){if(serial===routeSerial)$('unitProgress').textContent='本單元共 '+data.lessons.length+' 堂；暫時無法讀取完成進度'}
   }catch(e){if(serial===routeSerial)protectedError(e,target)}
  }else if(lessonMatch){
-  const id=lessonMatch[1];panel('lessonPanel');
+  const id=lessonMatch[1];panel('lessonPanel');window.scrollTo(0,0);
   $('backLessons').onclick=()=>{location.hash='unit/'+id[1]};
+  $('courseSource').textContent='';
+  const completeButton=$('completeLesson');completeButton.disabled=true;completeButton.setAttribute('aria-pressed','false');
+  completeButton.textContent='完成這堂課';$('completionMessage').textContent='觀看並練習後再手動標記完成。';
+  $('playlist').replaceChildren();$('sideProgress').textContent='正在讀取課程目錄…';
   $('lessonHeading').textContent='正在讀取課程…';$('lessonDescription').textContent='';
   $('lessonVideo').replaceChildren();$('lessonMessage').textContent='';$('lessonMaterial').replaceChildren();
   try{
    const data=await authorizedJson('/api/student/lesson?id='+encodeURIComponent(id));
    if(serial!==routeSerial)return;
    const item=data.lesson;$('lessonHeading').textContent=item.title;
+   $('courseSource').textContent='單元 '+item.unit+'｜'+item.sourceId;
    $('lessonDescription').textContent=item.description||'';
    if(item.published&&item.embedUrl){
+    completeButton.disabled=false;
     const video=document.createElement('div');video.className='video';
     const frame=document.createElement('iframe');
     frame.src=item.embedUrl;frame.title='課程影片：'+item.title;
@@ -179,6 +236,56 @@ async function renderRoute(){
    }else{
     $('lessonMessage').textContent='這堂課目前尚未上架影片，老師新增內容後就能從這裡觀看。';
    }
+   try{
+    const [unitData,progress]=await Promise.all([
+     authorizedJson('/api/student/unit?unit='+item.unit),
+     authorizedJson('/api/student/progress?unit='+item.unit)
+    ]);
+    if(serial!==routeSerial)return;
+    const done=new Set(progress.completed||[]);
+    function applyCompletion(){
+     const yes=done.has(id);
+     completeButton.setAttribute('aria-pressed',String(yes));
+     completeButton.textContent=yes?'✓ 已完成・取消標記':'標記我已完成這堂課';
+     $('completionMessage').textContent=yes?'你已標記完成，可以繼續複習。':'練習後點擊記錄完成進度。';
+     $('sideProgress').textContent='已完成 '+done.size+' / '+unitData.lessons.length+' 堂';
+    }
+    const playlist=$('playlist');
+    for(const lesson of unitData.lessons){
+     const a=document.createElement('a');
+     a.href='/student#lesson/'+lesson.id;
+     a.textContent=lesson.sourceId+'　'+lesson.title;
+     if(lesson.id===id)a.setAttribute('aria-current','page');
+     if(done.has(lesson.id)){
+      const span=document.createElement('span');span.textContent=' ✓';span.className='done';a.appendChild(span);
+     }
+     playlist.appendChild(a);
+    }
+    applyCompletion();
+    completeButton.onclick=async()=>{
+     if(completeButton.disabled||!item.published)return;
+     completeButton.disabled=true;
+     const next=!done.has(id);
+     try{
+      const r=await fetch('/api/student/progress',{method:'POST',
+       headers:{'Content-Type':'application/json'},
+       credentials:'same-origin',body:JSON.stringify({id,completed:next})
+      });
+      const body=await r.json().catch(()=>({}));
+      if(!r.ok)throw Error(body.error||'進度暫時無法儲存');
+      if(next)done.add(id);else done.delete(id);
+      for(const link of playlist.querySelectorAll('a')){
+       const isItem=link.getAttribute('href')==='/student#lesson/'+id;
+       if(isItem){
+        const old=link.querySelector('.done');if(old)old.remove();
+        if(next){const span=document.createElement('span');span.textContent=' ✓';span.className='done';link.appendChild(span)}
+       }
+      }
+      applyCompletion();
+     }catch(e){$('completionMessage').textContent='儲存失敗：'+e.message}
+     finally{completeButton.disabled=!item.published}
+    };
+   }catch(e){if(serial===routeSerial){$('sideProgress').textContent='課程導覽暫時無法讀取';$('completionMessage').textContent='學習進度目前無法同步，影片仍可觀看';}}
   }catch(e){if(serial===routeSerial){$('lessonHeading').textContent='無法開啟課程';$('lessonMessage').textContent=e.message}}
  }else{
   panel('overview');

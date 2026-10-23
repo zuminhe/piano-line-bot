@@ -15,6 +15,7 @@ on:
       - feature/richmenu-artwork-validation-20261021
       - feature/detached-richmenu-provision-draft-20261021
       - feature/course-content-mvp-20261022
+      - feature/official-catalog-responsive-sales-20261023
   pull_request:
     paths:
       - "lib/**"
@@ -57,3 +58,5 @@ jobs:
           node --check api/student/lesson.js
           node --check lib/course-content.js
           node --check lib/course-store.js
+          node --check lib/course-catalog.js
+          node --check api/student/progress.js

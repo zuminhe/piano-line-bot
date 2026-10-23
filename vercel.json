@@ -54,6 +54,10 @@
       "destination": "/student.html"
     },
     {
+      "source": "/sales-preview",
+      "destination": "/sales-preview.html"
+    },
+    {
       "source": "/signed-out",
       "destination": "/signed-out.html"
     },
