@@ -218,7 +218,7 @@ main{padding-top:14px}.card{margin:12px 0}
         <p id="lessonMessage" class="muted"></p>
         <div id="lessonMaterial"></div>
         <div class="complete-panel">
-          <button type="button" id="completeLesson" aria-pressed="false" disabled>完成這堂課</button>
+          <button type="button" id="completeLesson" aria-pressed="false" disabled>已完成這堂課</button>
           <span id="completionMessage" class="muted" role="status" aria-live="polite">看完並練習後，可以手動標記已完成。</span>
         </div>
         <p class="helper muted">學習進度會記錄在你的 LINE 學員身分下；不同裝置登入同一帳號即可接續。</p>
@@ -352,7 +352,7 @@ async function renderRoute(){
   $('backLessons').onclick=()=>{location.hash='unit/'+id[1]};
   $('courseSource').textContent='';
   const completeButton=$('completeLesson');completeButton.disabled=true;completeButton.setAttribute('aria-pressed','false');
-  completeButton.textContent='完成這堂課';$('completionMessage').textContent='觀看並練習後再手動標記完成。';
+  completeButton.textContent='已完成這堂課';$('completionMessage').textContent='觀看並練習後再手動標記完成。';
   $('playlist').replaceChildren();$('sideProgress').textContent='正在讀取課程目錄…';
   $('lessonHeading').textContent='正在讀取課程…';$('lessonDescription').textContent='';
   $('lessonVideo').replaceChildren();$('lessonMessage').textContent='';$('lessonMaterial').replaceChildren();
@@ -413,7 +413,7 @@ async function renderRoute(){
     function applyCompletion(){
      const yes=done.has(id);
      completeButton.setAttribute('aria-pressed',String(yes));
-     completeButton.textContent=yes?'✓ 已完成・取消標記':'標記我已完成這堂課';
+     completeButton.textContent=yes?'✓ 已完成・取消標記':'已完成這堂課';
      $('completionMessage').textContent=yes?'你已標記完成，可以繼續複習。':'練習後點擊記錄完成進度。';
      $('sideProgress').textContent='已完成 '+done.size+' / '+unitData.lessons.length+' 堂';
     }
