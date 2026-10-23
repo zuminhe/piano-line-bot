@@ -66,14 +66,15 @@ test('published video requires valid media and HTTPS whitelisted materials',()=>
  assert.throws(()=>validateLessonDraft({...draft(),materialsUrl:'https://malware.test/a.pdf'}),/講義/);
  assert.equal(safeMaterialUrl('https://docs.google.com/document/d/1'), 'https://docs.google.com/document/d/1');
 });
-test('draft lessons never expose player URL to students, published lessons do',()=>{
+test('published lessons expose player details but never legacy per-lesson handout URLs',()=>{
  const stored=normalizeStoredLesson(sampleId,JSON.stringify({...validateLessonDraft(draft()),updatedAt:'2026-10-22T00:00:00Z'}));
  assert.equal(stored.published,true);
  assert.equal(studentLessonSummary(stored).videoUrl,undefined);
  assert.equal(studentLessonDetail(stored).provider,'youtube');
+ assert.equal(studentLessonDetail(stored).materialsUrl,undefined);
  const draftOnly={...stored,published:false};
  assert.equal(studentLessonDetail(draftOnly).embedUrl,null);
- assert.equal(studentLessonDetail(draftOnly).materialsUrl,null);
+ assert.equal(studentLessonDetail(draftOnly).materialsUrl,undefined);
  assert.equal(normalizeStoredLesson(sampleId,JSON.stringify({...stored,id:'u2-l01'})),null);
 });
 test('admin can save and reread one lesson in storage; other slots remain drafts',async()=>{
