@@ -146,6 +146,43 @@ main{padding-top:14px}.card{margin:12px 0}
 }
 @media(prefers-reduced-motion:reduce){.unit{transition:none}.unit:hover:not(:disabled){transform:none}}
 
+/* Lesson UX polish (staging only): clear progress action and compact mobile study layout. */
+#unitPanel #unitHeading{margin:13px 0 5px}
+#unitPanel #unitProgress{margin:5px 0 6px}
+#unitPanel .unit-help{margin:0 0 16px}
+#unitPanel .stack{gap:10px}
+.complete-panel{flex-wrap:wrap;min-width:0}
+.complete-panel #completeLesson{flex:0 1 auto;min-width:245px;max-width:100%;white-space:normal;line-height:1.5;word-break:keep-all;overflow-wrap:normal;text-align:center}
+.complete-panel #completionMessage{flex:1 1 180px;min-width:0;font-size:16px;line-height:1.7}
+#lessonDescription:empty,#lessonMessage:empty,#lessonMaterial:empty{display:none}
+#lessonHeading{margin-top:7px;margin-bottom:8px}
+#lessonDescription{margin:7px 0 12px}
+#courseSource{margin:6px 0}
+#lessonVideo .video{margin:15px 0}
+@media(max-width:767px){
+ #unitPanel{padding-top:20px}
+ #unitPanel #backUnits,#lessonPanel #backLessons{padding:9px 14px;min-height:43px;font-size:16px}
+ #unitPanel #unitHeading{margin:16px 0 4px}
+ #unitPanel #unitProgress{margin:4px 0 5px}
+ #unitPanel .unit-help{margin:0 0 13px;font-size:16px;line-height:1.65}
+ #unitPanel .stack{gap:9px}
+ #unitPanel .lesson{padding:14px 15px;gap:10px}
+ #unitPanel .lesson strong{line-height:1.5}
+ #unitPanel .lesson small{margin-top:4px;line-height:1.5}
+ #lessonPanel{padding-top:19px}
+ .learning-layout{margin-top:11px;gap:17px}
+ #lessonHeading{margin:5px 0 6px;line-height:1.4}
+ #lessonDescription{margin:6px 0 9px;line-height:1.7}
+ #lessonVideo .video{margin:13px 0}
+ .complete-panel{display:flex;flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:10px;margin-top:16px;padding:17px}
+ .complete-panel #completeLesson{display:flex;flex:0 0 auto;width:100%;min-width:0;max-width:none;min-height:54px;padding:12px 15px;font-size:17px;line-height:1.5;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+ .complete-panel #completionMessage{display:block;flex:0 0 auto;width:100%;min-width:0;font-size:15px;line-height:1.7}
+}
+@media(max-width:360px){
+ .complete-panel{padding:13px}
+ .complete-panel #completeLesson{font-size:16px;padding:11px}
+}
+
 </style>
 </head>
 <body>
@@ -166,9 +203,9 @@ main{padding-top:14px}.card{margin:12px 0}
     <div class="units" id="units"></div>
   </section>
   <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
-    <h2 id="unitHeading" style="margin-top:20px"></h2>
+    <h2 id="unitHeading"></h2>
     <p id="unitProgress" class="progress-count" aria-live="polite"></p>
-    <p class="muted">依照正式課程目錄排列。已錄製且上架的內容可播放，其他課程會標示尚未上架。</p>
+    <p class="muted unit-help">選擇課程，開始學習。尚未上架的課程會另行標示。</p>
     <div id="lessonList" class="stack"></div>
   </section>
   <section class="card" id="lessonPanel"><button class="ghost" id="backLessons">← 返回課程列表</button>
@@ -182,7 +219,7 @@ main{padding-top:14px}.card{margin:12px 0}
         <div id="lessonMaterial"></div>
         <div class="complete-panel">
           <button type="button" id="completeLesson" aria-pressed="false" disabled>完成這堂課</button>
-          <span id="completionMessage" class="muted">看完並練習後，可以手動標記已完成。</span>
+          <span id="completionMessage" class="muted" role="status" aria-live="polite">看完並練習後，可以手動標記已完成。</span>
         </div>
         <p class="helper muted">學習進度會記錄在你的 LINE 學員身分下；不同裝置登入同一帳號即可接續。</p>
       </div>
@@ -322,11 +359,10 @@ async function renderRoute(){
   try{
    const data=await authorizedJson('/api/student/lesson?id='+encodeURIComponent(id));
    if(serial!==routeSerial)return;
-   const item=data.lesson;$('lessonHeading').textContent=item.title;
+   const item=data.lesson;let lessonPlayable=false;$('lessonHeading').textContent=item.title;
    $('courseSource').textContent='單元 '+item.unit+'｜'+item.sourceId;
    $('lessonDescription').textContent=item.description||'';
    if(item.published&&(item.embedUrl||item.provider==='mux')){
-    completeButton.disabled=false;
     const video=document.createElement('div');video.className='video';
     if(item.provider==='mux'){
      $('lessonMessage').textContent='正在核對播放權限並取得限時播放憑證…';
@@ -346,6 +382,7 @@ async function renderRoute(){
       player.setAttribute('disable-cookies','');
       player.setAttribute('title','課程影片：'+item.title);
       video.appendChild(player);$('lessonVideo').appendChild(video);
+      lessonPlayable=true;
       $('lessonMessage').textContent='';
      }catch(e){
       if(serial!==routeSerial)return;
@@ -357,6 +394,7 @@ async function renderRoute(){
      frame.src=item.embedUrl;frame.title='課程影片：'+item.title;
      frame.loading='lazy';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;
      frame.referrerPolicy='strict-origin-when-cross-origin';video.appendChild(frame);$('lessonVideo').appendChild(video);
+     lessonPlayable=true;
     }
     if(item.materialsUrl){
      const a=document.createElement('a');a.className='btn ghost';a.href=item.materialsUrl;
@@ -391,9 +429,11 @@ async function renderRoute(){
      playlist.appendChild(a);
     }
     applyCompletion();
+    completeButton.disabled=!lessonPlayable;
     completeButton.onclick=async()=>{
      if(completeButton.disabled||!item.published)return;
      completeButton.disabled=true;
+     completeButton.textContent='正在儲存…';
      const next=!done.has(id);
      try{
       const r=await fetch('/api/student/progress',{method:'POST',
@@ -411,10 +451,16 @@ async function renderRoute(){
        }
       }
       applyCompletion();
-     }catch(e){$('completionMessage').textContent='儲存失敗：'+e.message}
-     finally{completeButton.disabled=!item.published}
+     }catch(e){
+      applyCompletion();
+      $('completionMessage').textContent='儲存失敗，進度未變更：'+e.message;
+     }finally{completeButton.disabled=!lessonPlayable}
     };
-   }catch(e){if(serial===routeSerial){$('sideProgress').textContent='課程導覽暫時無法讀取';$('completionMessage').textContent='學習進度目前無法同步，影片仍可觀看';}}
+   }catch(e){if(serial===routeSerial){
+    completeButton.disabled=true;
+    $('sideProgress').textContent='課程導覽暫時無法讀取';
+    $('completionMessage').textContent='學習進度目前無法同步，請稍後重新開啟課程。影片仍可觀看。';
+   }}
   }catch(e){if(serial===routeSerial){$('lessonHeading').textContent='無法開啟課程';$('lessonMessage').textContent=e.message}}
  }else{
   panel('overview');
