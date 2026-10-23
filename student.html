@@ -189,6 +189,14 @@ main{padding-top:14px}.card{margin:12px 0}
 .lesson-step strong{font-size:17px}.lesson-step small{font-size:15px;overflow-wrap:anywhere}
 .lesson-step[aria-disabled="true"]{color:#64748b;background:#f7f8fa}
 @media(max-width:480px){.lesson-navigation{grid-template-columns:1fr}.lesson-navigation .lesson-step{padding:14px}}
+/* Actual completed-lesson progress, read from the authenticated progress API. */
+#unitPanel .unit-progress-bar{display:block;width:100%;height:11px;margin:0 0 17px;appearance:none;-webkit-appearance:none;border:0;border-radius:999px;overflow:hidden;background:#e6eef6}
+#unitPanel .unit-progress-bar[hidden]{display:none}
+#unitPanel .unit-progress-bar::-webkit-progress-bar{background:#e6eef6;border-radius:999px}
+#unitPanel .unit-progress-bar::-webkit-progress-value{background:#28745c;border-radius:999px;transition:width .18s ease}
+#unitPanel .unit-progress-bar::-moz-progress-bar{background:#28745c;border-radius:999px}
+@media(max-width:767px){#unitPanel .unit-progress-bar{height:10px;margin:3px 0 14px}}
+@media(prefers-reduced-motion:reduce){#unitPanel .unit-progress-bar::-webkit-progress-value{transition:none}}
 </style>
 </head>
 <body>
@@ -211,6 +219,7 @@ main{padding-top:14px}.card{margin:12px 0}
   <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
     <h2 id="unitHeading"></h2>
     <p id="unitProgress" class="progress-count" aria-live="polite"></p>
+    <progress id="unitProgressBar" class="unit-progress-bar" value="0" max="6" aria-label="本單元課程完成進度" hidden></progress>
     <p class="muted unit-help">選擇課程，開始學習。尚未上架的課程會另行標示。</p>
     <div id="lessonList" class="stack"></div>
   </section>
@@ -359,6 +368,7 @@ async function renderRoute(){
   const unit=Number(unitMatch[1]);panel('unitPanel');window.scrollTo(0,0);
   $('unitHeading').textContent='單元 '+unit+'｜'+names[unit-1];
   $('unitProgress').textContent='這個單元共有 '+lessonCounts[unit-1]+' 堂課';
+  $('unitProgressBar').hidden=true;
   const target=$('lessonList');target.textContent='正在讀取課程列表…';
   try{
    const data=await authorizedJson('/api/student/unit?unit='+unit);
@@ -377,7 +387,8 @@ async function renderRoute(){
    try{
     const progress=await authorizedJson('/api/student/progress?unit='+unit);
     if(serial!==routeSerial)return;
-    const completed=new Set(progress.completed||[]);
+    const validIds=new Set(data.lessons.map(lesson=>lesson.id));
+    const completed=new Set((progress.completed||[]).filter(id=>validIds.has(id)));
     for(const row of target.querySelectorAll('a.lesson')){
       const id=row.getAttribute('href').split('/').pop();
       if(completed.has(id)){
@@ -385,7 +396,15 @@ async function renderRoute(){
       }
     }
     $('unitProgress').textContent='已完成 '+completed.size+' / '+data.lessons.length+' 堂（由學員手動標記）';
-   }catch(e){if(serial===routeSerial)$('unitProgress').textContent='本單元共 '+data.lessons.length+' 堂；暫時無法讀取完成進度'}
+    const progressBar=$('unitProgressBar');
+    progressBar.max=data.lessons.length||1;
+    progressBar.value=completed.size;
+    progressBar.setAttribute('aria-valuetext','已完成 '+completed.size+' / '+data.lessons.length+' 堂');
+    progressBar.hidden=false;
+   }catch(e){if(serial===routeSerial){
+    $('unitProgressBar').hidden=true;
+    $('unitProgress').textContent='本單元共 '+data.lessons.length+' 堂；暫時無法讀取完成進度';
+   }}
   }catch(e){if(serial===routeSerial)protectedError(e,target)}
  }else if(lessonMatch){
   const id=lessonMatch[1];panel('lessonPanel');window.scrollTo(0,0);
