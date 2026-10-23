@@ -183,6 +183,12 @@ main{padding-top:14px}.card{margin:12px 0}
  .complete-panel #completeLesson{font-size:16px;padding:11px}
 }
 
+.lesson-navigation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.lesson-navigation:empty{display:none}
+.lesson-navigation .lesson-step{display:flex;flex-direction:column;gap:6px;min-width:0;padding:16px;border:1px solid #d6e2ee;border-radius:14px;color:#23486c;background:#f5f8fc;text-decoration:none;line-height:1.6}
+.lesson-step strong{font-size:17px}.lesson-step small{font-size:15px;overflow-wrap:anywhere}
+.lesson-step[aria-disabled="true"]{color:#64748b;background:#f7f8fa}
+@media(max-width:480px){.lesson-navigation{grid-template-columns:1fr}.lesson-navigation .lesson-step{padding:14px}}
 </style>
 </head>
 <body>
@@ -221,6 +227,7 @@ main{padding-top:14px}.card{margin:12px 0}
           <button type="button" id="completeLesson" aria-pressed="false" disabled>已完成這堂課</button>
           <span id="completionMessage" class="muted" role="status" aria-live="polite">看完並練習後，可以手動標記已完成。</span>
         </div>
+        <nav id="lessonNavigation" class="lesson-navigation" aria-label="上一堂與下一堂"></nav>
         <p class="helper muted">學習進度會記錄在你的 LINE 學員身分下；不同裝置登入同一帳號即可接續。</p>
       </div>
       <aside class="learning-side" aria-label="同單元課程導覽">
@@ -266,6 +273,22 @@ function renderUnits(access){
   parent.appendChild(card);
  }
  $('coaching').textContent=access.coaching?'陪練訂閱有效（服務功能尚在規劃中）':'尚未訂閱陪練服務。';
+}
+function renderLessonNavigation(lessons,currentId){
+ const target=$('lessonNavigation');target.replaceChildren();
+ const index=lessons.findIndex(lesson=>lesson.id===currentId);
+ if(index<0)return;
+ for(const [offset,label,boundary] of [[-1,'← 上一堂','這是本單元第一堂'],[1,'下一堂 →','這是本單元最後一堂']]){
+  const lesson=lessons[index+offset];
+  const step=document.createElement(lesson?'a':'div');step.className='lesson-step';
+  const heading=document.createElement('strong');heading.textContent=label;step.appendChild(heading);
+  const detail=document.createElement('small');
+  if(lesson){
+   step.href='/student#lesson/'+lesson.id;
+   detail.textContent=lesson.sourceId+'｜'+lesson.title+(lesson.published?'':'（尚未上架）');
+  }else{step.setAttribute('aria-disabled','true');detail.textContent=boundary}
+  step.appendChild(detail);target.appendChild(step);
+ }
 }
 async function refreshOverviewProgress(){
  await Promise.all(myAccess.units.map(async unit=>{
@@ -328,6 +351,7 @@ async function renderRoute(){
  try{hash=decodeURIComponent(location.hash.slice(1))}catch{hash='/'};
  // Remove the iframe on navigation: a hidden iframe may continue playing audio.
  $('lessonVideo').replaceChildren();
+ $('lessonNavigation').replaceChildren();
  const unitMatch=/^unit\/([1-4])$/.exec(hash);
  const lessonMatch=/^lesson\/(u[1-4]-l0[1-8])$/.exec(hash);
  document.body.classList.toggle('lesson-view',Boolean(lessonMatch));
@@ -420,10 +444,10 @@ async function renderRoute(){
     $('lessonMessage').textContent='這堂課目前尚未上架影片，老師新增內容後就能從這裡觀看。';
    }
    try{
-    const [unitData,progress]=await Promise.all([
-     authorizedJson('/api/student/unit?unit='+item.unit),
-     authorizedJson('/api/student/progress?unit='+item.unit)
-    ]);
+    const unitData=await authorizedJson('/api/student/unit?unit='+item.unit);
+    if(serial!==routeSerial)return;
+    renderLessonNavigation(unitData.lessons,id);
+    const progress=await authorizedJson('/api/student/progress?unit='+item.unit);
     if(serial!==routeSerial)return;
     const done=new Set(progress.completed||[]);
     function applyCompletion(){
