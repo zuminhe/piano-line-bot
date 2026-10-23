@@ -50,6 +50,10 @@
       "destination": "/api/student/lesson.js"
     },
     {
+      "source": "/api/student/progress",
+      "destination": "/api/student/progress.js"
+    },
+    {
       "source": "/student",
       "destination": "/student.html"
     },
