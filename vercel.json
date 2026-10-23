@@ -58,6 +58,14 @@
       "destination": "/api/course.js?operation=playback"
     },
     {
+      "source": "/api/student/materials",
+      "destination": "/api/course.js?operation=materials"
+    },
+    {
+      "source": "/api/student/material-download",
+      "destination": "/api/course.js?operation=materialDownload"
+    },
+    {
       "source": "/api/checkout/quote",
       "destination": "/api/course.js?operation=quote"
     },
