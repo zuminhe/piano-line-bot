@@ -50,13 +50,15 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;
 </div>
 <button id="loadCourseLesson" class="secondary">讀取這堂課</button>
 <label for="courseTitle">課程名稱</label><input id="courseTitle" maxlength="80" placeholder="例如：第 01 課｜正式課名">
-<label for="courseVideo">YouTube／Vimeo 影片網址</label><input id="courseVideo" type="url" placeholder="https://youtu.be/...">
+<label for="courseVideo">YouTube／Vimeo 網址，或 Mux 簽署播放 ID</label>
+<input id="courseVideo" type="text" autocomplete="off" spellcheck="false" placeholder="https://youtu.be/… 或 mux:signed:播放ID">
+<p class="hint">Mux：必須先在 Mux 後台設定播放政策為 Signed，複製 Playback ID，填入 mux:signed:ID。伺服器簽署密鑰另存 Vercel，不要貼在此欄。</p>
 <label for="courseMaterials">講義分享網址（選填）</label><input id="courseMaterials" type="url" placeholder="https://drive.google.com/...">
 <label for="courseDescription">課程說明（選填）</label><textarea id="courseDescription" rows="4" maxlength="800" style="display:block;width:100%;max-width:750px;padding:12px;font:inherit;border:1px solid #c2cad6;border-radius:8px"></textarea>
 <label><input id="coursePublished" type="checkbox" style="width:auto;max-width:none;margin-right:8px">上架給已開通單元的學員觀看</label>
 <div><button id="saveCourseLesson">儲存這堂課</button></div>
 <p id="courseStatus" class="hint" role="status" aria-live="polite">請先點「讀取這堂課」，確認後再修改。未經上架的課程不會播放影片。</p>
-<p class="hint">注意：YouTube 不公開影片仍可經由網址分享；要限制嵌入網站請評估 Vimeo 的網域限制。</p>
+<p class="hint">注意：YouTube 不公開影片仍可能被分享。Mux 的 signed 播放僅在伺服器完成憑證設定後可用。</p>
 </section>
 <section><h2>最近產生的驗證紀錄</h2><button id="refresh" class="secondary">重新整理</button><div id="history"></div></section>
 </div>

@@ -85,6 +85,8 @@ button,.btn{font-size:18px;font-weight:600;line-height:1.4;padding:14px 19px;min
 @media(max-width:600px){header h1{font-size:34px}.lesson-view header h1{font-size:28px}.card{padding:21px}.card h2{font-size:25px}.lesson-view .card{padding:20px}button,.btn{font-size:17px;padding:12px 16px}.unit{padding:21px;min-height:143px}.unit strong{font-size:21px}.lesson{padding:18px}.lesson strong{font-size:19px}.lesson small{font-size:16px}.playlist a{font-size:16px}}
 @media(max-width:360px){header h1{font-size:31px}.lesson-view header h1{font-size:26px}.unit strong{font-size:20px}}
 
+.video mux-player{display:block;width:100%;height:100%;--controls-backdrop-color:rgba(11,34,53,.8)}
+#lessonVideo .video{min-height:180px}
 </style>
 </head>
 <body>
@@ -102,7 +104,7 @@ button,.btn{font-size:18px;font-weight:600;line-height:1.4;padding:14px 19px;min
     <button class="ghost" id="logout">登出學員中心</button>
   </section>
   <section class="card" id="overview"><h2>我的課程</h2><p class="muted">選擇已開通的單元，進入正式課程列表（目前共 23 堂）。</p><div class="units" id="units"></div>
-    <p class="muted helper">影片由 YouTube 或 Vimeo 播放；學員中心負責確認單元購買資格。</p>
+    <p class="muted helper">影片可使用 YouTube、Vimeo 或 Mux 簽署播放；學員中心負責確認單元購買資格。</p>
   </section>
   <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
     <h2 id="unitHeading" style="margin-top:20px"></h2>
@@ -138,6 +140,8 @@ button,.btn{font-size:18px;font-weight:600;line-height:1.4;padding:14px 19px;min
 <p id="notification" role="status" aria-live="polite"></p>
 </main>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<!-- Mux Player only receives a short-lived server-issued token after LINE membership authorization. -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/@mux/mux-player@3"></script>
 <script>
 const $=x=>document.getElementById(x);
 const names=['基礎樂理','認識和弦','和弦變化','和弦應用'];
@@ -258,13 +262,39 @@ async function renderRoute(){
    const item=data.lesson;$('lessonHeading').textContent=item.title;
    $('courseSource').textContent='單元 '+item.unit+'｜'+item.sourceId;
    $('lessonDescription').textContent=item.description||'';
-   if(item.published&&item.embedUrl){
+   if(item.published&&(item.embedUrl||item.provider==='mux')){
     completeButton.disabled=false;
     const video=document.createElement('div');video.className='video';
-    const frame=document.createElement('iframe');
-    frame.src=item.embedUrl;frame.title='課程影片：'+item.title;
-    frame.loading='lazy';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;
-    frame.referrerPolicy='strict-origin-when-cross-origin';video.appendChild(frame);$('lessonVideo').appendChild(video);
+    if(item.provider==='mux'){
+     $('lessonMessage').textContent='正在核對播放權限並取得限時播放憑證…';
+     try{
+      const playback=await authorizedJson('/api/student/playback?id='+encodeURIComponent(id));
+      if(serial!==routeSerial)return;
+      if(playback.provider!=='mux'||!/^[A-Za-z0-9]{10,128}$/.test(playback.playbackId)||
+        !playback.tokens||typeof playback.tokens.playback!=='string')throw Error('播放憑證資料不完整');
+      const player=document.createElement('mux-player');
+      player.setAttribute('playback-id',playback.playbackId);
+      player.setAttribute('playback-token',playback.tokens.playback);
+      player.setAttribute('thumbnail-token',playback.tokens.thumbnail);
+      player.setAttribute('storyboard-token',playback.tokens.storyboard);
+      player.setAttribute('stream-type','on-demand');
+      player.setAttribute('preload','metadata');
+      player.setAttribute('playsinline','');
+      player.setAttribute('disable-cookies','');
+      player.setAttribute('title','課程影片：'+item.title);
+      video.appendChild(player);$('lessonVideo').appendChild(video);
+      $('lessonMessage').textContent='';
+     }catch(e){
+      if(serial!==routeSerial)return;
+      $('lessonMessage').textContent='Mux 影片尚未可播放：'+e.message+'。請先檢查是否已設定 Mux 簽署密鑰。';
+      completeButton.disabled=true;
+     }
+    }else{
+     const frame=document.createElement('iframe');
+     frame.src=item.embedUrl;frame.title='課程影片：'+item.title;
+     frame.loading='lazy';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;
+     frame.referrerPolicy='strict-origin-when-cross-origin';video.appendChild(frame);$('lessonVideo').appendChild(video);
+    }
     if(item.materialsUrl){
      const a=document.createElement('a');a.className='btn ghost';a.href=item.materialsUrl;
      a.target='_blank';a.rel='noopener noreferrer';a.textContent='開啟課程講義 ↗';$('lessonMaterial').appendChild(a);

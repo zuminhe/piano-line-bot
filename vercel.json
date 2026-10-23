@@ -54,6 +54,18 @@
       "destination": "/api/student/progress.js"
     },
     {
+      "source": "/api/student/playback",
+      "destination": "/api/student/playback.js"
+    },
+    {
+      "source": "/api/checkout/quote",
+      "destination": "/api/checkout/quote.js"
+    },
+    {
+      "source": "/api/checkout/draft",
+      "destination": "/api/checkout/draft.js"
+    },
+    {
       "source": "/student",
       "destination": "/student.html"
     },
