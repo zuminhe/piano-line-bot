@@ -33,7 +33,7 @@ function draft(id=sampleId){
 }
 test('course uses official 23-lesson catalog and stable draft IDs',()=>{
  assert.deepEqual(COURSE_UNITS.map(x=>x.name),['基礎樂理','認識和弦','和弦變化','和弦應用']);
- assert.deepEqual(parseLessonId('u4-l06'),{id:'u4-l06',unit:4,number:6});
+ assert.deepEqual(parseLessonId('u4-l08'),{id:'u4-l08',unit:4,number:8});
  assert.equal(parseLessonId('u4-l09'),null);
  assert.equal(parseLessonId('u2-l06'),null);
  assert.equal(parseLessonId('../u1-l01'),null);
