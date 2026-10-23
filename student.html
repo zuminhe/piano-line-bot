@@ -260,12 +260,28 @@ function renderUnits(access){
   const number=document.createElement('span');number.className='unit-index';number.textContent='UNIT '+String(i).padStart(2,'0');head.appendChild(number);
   const symbol=document.createElement('span');symbol.className='unit-symbol';symbol.setAttribute('aria-hidden','true');symbol.textContent=allowed?'↗':'🔒';head.appendChild(symbol);card.appendChild(head);
   const title=document.createElement('strong');title.textContent=names[i-1];card.appendChild(title);
-  const count=document.createElement('span');count.className='unit-count';count.textContent=lessonCounts[i-1]+' 堂課';card.appendChild(count);
+  const count=document.createElement('span');count.className='unit-count';if(allowed)count.id='overviewProgress'+i;count.textContent=lessonCounts[i-1]+' 堂課';card.appendChild(count);
   const action=document.createElement('span');action.className='unit-action';action.textContent=allowed?'進入課程 →':'尚未開通';card.appendChild(action);
   if(allowed)card.onclick=()=>{location.hash='unit/'+i};
   parent.appendChild(card);
  }
  $('coaching').textContent=access.coaching?'陪練訂閱有效（服務功能尚在規劃中）':'尚未訂閱陪練服務。';
+}
+async function refreshOverviewProgress(){
+ await Promise.all(myAccess.units.map(async unit=>{
+  const target=$('overviewProgress'+unit);
+  if(!target)return;
+  try{
+   const data=await authorizedJson('/api/student/progress?unit='+unit);
+   const completed=new Set((data.completed||[]).filter(id=>
+    typeof id==='string'&&new RegExp('^u'+unit+'-l0[1-9]$').test(id)&&Number(id.slice(-2))<=lessonCounts[unit-1]
+   ));
+   if(!target.isConnected)return;
+   target.textContent='已完成 '+completed.size+' / '+lessonCounts[unit-1]+' 堂';
+  }catch{
+   if(target.isConnected)target.textContent=lessonCounts[unit-1]+' 堂課・進度暫時無法讀取';
+  }
+ }));
 }
 function panel(which){
  for(const id of ['overview','unitPanel','lessonPanel'])$(id).style.display=id===which?'block':'none';
@@ -464,6 +480,7 @@ async function renderRoute(){
   }catch(e){if(serial===routeSerial){$('lessonHeading').textContent='無法開啟課程';$('lessonMessage').textContent=e.message}}
  }else{
   panel('overview');
+  void refreshOverviewProgress();
  }
 }
 async function boot(){
