@@ -211,7 +211,9 @@ main{padding-top:14px}.card{margin:12px 0}
  .playlist .playlist-unpublished-tag{font-size:12px}
 }
 /* Central printable handout library */
-.materials-entry{display:flex;align-items:center;gap:15px;border:1px solid #cadef0;background:#f4f9ff;color:#193e60;border-radius:14px;padding:16px 20px;margin:19px 0 7px;text-decoration:none;min-height:84px}
+.resources-section{margin-top:26px;padding-top:22px;border-top:1px solid #e1ebf4}
+#overview .resources-section h3{font-size:20px;line-height:1.5;margin:0 0 12px;font-weight:600}
+.materials-entry{display:flex;align-items:center;gap:15px;border:1px solid #d6e5f1;background:#f8fbff;color:#193e60;border-radius:14px;padding:15px 18px;margin:0;text-decoration:none;min-height:78px}
 .materials-entry:hover{background:#edf5fe;border-color:#97b9d6}
 .materials-entry:focus-visible{outline:3px solid #80b6ed;outline-offset:3px}
 .materials-entry-icon{display:inline-flex;align-items:center;justify-content:center;font-size:25px;background:#e4effa;color:#285a83;border-radius:11px;width:48px;height:48px;flex:0 0 48px}
@@ -234,7 +236,9 @@ main{padding-top:14px}.card{margin:12px 0}
 #materialsPanel .materials-note{font-size:14px;line-height:1.8;margin:20px 0 0}
 @media(max-width:767px){
  .materials-list{grid-template-columns:1fr;gap:11px}
- .materials-entry{padding:14px 15px;margin:16px 0 7px;gap:12px;min-height:74px}
+ .resources-section{margin-top:21px;padding-top:18px}
+ #overview .resources-section h3{font-size:19px;margin-bottom:10px}
+ .materials-entry{padding:13px 15px;margin:0;gap:12px;min-height:72px}
  .materials-entry-icon{width:44px;height:44px;flex-basis:44px}
  .materials-entry-copy strong{font-size:19px}
  .materials-entry-copy small{font-size:14px}
@@ -262,22 +266,25 @@ main{padding-top:14px}.card{margin:12px 0}
 <div id="dashboard">
   <section class="card" id="overview">
     <div class="dashboard-intro"><h2 id="welcome">歡迎回來</h2><p class="intro-tip muted">選擇已開通的單元，開始今天的鋼琴練習。</p></div>
-    <a href="/student#materials" class="materials-entry" aria-label="前往我的講義，查看可下載列印的課程教材">
-      <span class="materials-entry-icon" aria-hidden="true">▤</span>
-      <span class="materials-entry-copy"><strong>我的講義</strong><small>集中管理課程講義・下載列印後搭配練習</small></span>
-      <span class="materials-entry-arrow" aria-hidden="true">→</span>
-    </a>
     <!-- Reserved for verified lesson-progress-based resume learning, without fabricated progress. -->
     <div id="resumeLearning" hidden></div>
     <div class="overview-heading"><h2>我的課程</h2><span class="muted unit-total">共 4 個單元 · 23 堂課</span></div>
     <div class="units" id="units"></div>
+    <section class="resources-section" aria-labelledby="resourcesHeading">
+      <h3 id="resourcesHeading">課程講義</h3>
+      <a href="/student#materials" class="materials-entry" aria-label="前往我的講義，查看課程教材及下載狀態">
+        <span class="materials-entry-icon" aria-hidden="true">▤</span>
+        <span class="materials-entry-copy"><strong>我的講義</strong><small>講義集中存放・下載列印後，帶到鋼琴前練習</small></span>
+        <span class="materials-entry-arrow" aria-hidden="true">→</span>
+      </a>
+    </section>
   </section>
   <section class="card" id="materialsPanel">
     <button class="ghost" type="button" id="backMaterials">← 返回我的課程</button>
     <h2>我的講義</h2>
     <p class="muted materials-intro">課程講義是搭配影片的練習教材。正式版提供後，可下載 PDF 自行列印，放在琴譜架上練習。</p>
     <div id="materialsList" class="materials-list" aria-live="polite">正在確認講義下載資格…</div>
-    <p class="muted materials-note">紙本寄送方案仍在規劃中；講義是否提供下載，會依照已開通的課程單元決定。</p>
+    <p class="muted materials-note">你可以在這裡查看已開通單元的講義狀態。正式 PDF 提供後，就能自行下載並列印。</p>
   </section>
   <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
     <h2 id="unitHeading"></h2>
