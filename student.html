@@ -210,6 +210,44 @@ main{padding-top:14px}.card{margin:12px 0}
  .playlist .playlist-item{gap:4px 7px;padding:10px 11px;min-height:48px}
  .playlist .playlist-unpublished-tag{font-size:12px}
 }
+/* Central printable handout library */
+.materials-entry{display:flex;align-items:center;gap:15px;border:1px solid #cadef0;background:#f4f9ff;color:#193e60;border-radius:14px;padding:16px 20px;margin:19px 0 7px;text-decoration:none;min-height:84px}
+.materials-entry:hover{background:#edf5fe;border-color:#97b9d6}
+.materials-entry:focus-visible{outline:3px solid #80b6ed;outline-offset:3px}
+.materials-entry-icon{display:inline-flex;align-items:center;justify-content:center;font-size:25px;background:#e4effa;color:#285a83;border-radius:11px;width:48px;height:48px;flex:0 0 48px}
+.materials-entry-copy{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.materials-entry-copy strong{font-size:20px;font-weight:600;line-height:1.45}
+.materials-entry-copy small{font-size:15px;color:#58718b;line-height:1.6}
+.materials-entry-arrow{font-size:24px;font-weight:600;color:#2d658f;flex:0 0 auto}
+#materialsPanel h2{margin-top:22px;margin-bottom:8px}
+#materialsPanel .materials-intro{margin:0 0 21px;line-height:1.8}
+.materials-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.material-item{padding:20px;border:1px solid #cbdff0;background:#fbfdff;border-radius:14px;min-width:0}
+.material-item-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.material-item strong{font-size:19px;line-height:1.5}
+.material-item p{font-size:16px;line-height:1.7;margin:12px 0 0}
+.material-locked{background:#f5f7fa;border-color:#e0e8f0}
+.material-status{display:inline-block;border-radius:99px;padding:4px 10px;background:#e7f2fd;color:#2b5e86;font-size:13px;font-weight:600;white-space:nowrap}
+.material-status-locked{background:#e9eef3;color:#5d7186}
+.material-status-ready{background:#e6f4eb;color:#256b4f}
+.material-download{margin-top:13px;font-size:16px}
+#materialsPanel .materials-note{font-size:14px;line-height:1.8;margin:20px 0 0}
+@media(max-width:767px){
+ .materials-list{grid-template-columns:1fr;gap:11px}
+ .materials-entry{padding:14px 15px;margin:16px 0 7px;gap:12px;min-height:74px}
+ .materials-entry-icon{width:44px;height:44px;flex-basis:44px}
+ .materials-entry-copy strong{font-size:19px}
+ .materials-entry-copy small{font-size:14px}
+ .materials-entry-arrow{font-size:21px}
+ .material-item{padding:17px}
+ #materialsPanel h2{margin-top:18px}
+}
+@media(max-width:360px){
+ .materials-entry{gap:9px;padding:12px}
+ .materials-entry-icon{width:39px;height:39px;flex-basis:39px;font-size:22px}
+ .materials-entry-copy strong{font-size:18px}
+ .materials-entry-copy small{font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -224,10 +262,22 @@ main{padding-top:14px}.card{margin:12px 0}
 <div id="dashboard">
   <section class="card" id="overview">
     <div class="dashboard-intro"><h2 id="welcome">歡迎回來</h2><p class="intro-tip muted">選擇已開通的單元，開始今天的鋼琴練習。</p></div>
+    <a href="/student#materials" class="materials-entry" aria-label="前往我的講義，查看可下載列印的課程教材">
+      <span class="materials-entry-icon" aria-hidden="true">▤</span>
+      <span class="materials-entry-copy"><strong>我的講義</strong><small>集中管理課程講義・下載列印後搭配練習</small></span>
+      <span class="materials-entry-arrow" aria-hidden="true">→</span>
+    </a>
     <!-- Reserved for verified lesson-progress-based resume learning, without fabricated progress. -->
     <div id="resumeLearning" hidden></div>
     <div class="overview-heading"><h2>我的課程</h2><span class="muted unit-total">共 4 個單元 · 23 堂課</span></div>
     <div class="units" id="units"></div>
+  </section>
+  <section class="card" id="materialsPanel">
+    <button class="ghost" type="button" id="backMaterials">← 返回我的課程</button>
+    <h2>我的講義</h2>
+    <p class="muted materials-intro">課程講義是搭配影片的練習教材。正式版提供後，可下載 PDF 自行列印，放在琴譜架上練習。</p>
+    <div id="materialsList" class="materials-list" aria-live="polite">正在確認講義下載資格…</div>
+    <p class="muted materials-note">紙本寄送方案仍在規劃中；講義是否提供下載，會依照已開通的課程單元決定。</p>
   </section>
   <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
     <h2 id="unitHeading"></h2>
@@ -244,7 +294,6 @@ main{padding-top:14px}.card{margin:12px 0}
         <p id="lessonDescription" class="muted"></p>
         <div id="lessonVideo"></div>
         <p id="lessonMessage" class="muted"></p>
-        <div id="lessonMaterial"></div>
         <div class="complete-panel" id="completionPanel" hidden>
           <button type="button" id="completeLesson" aria-pressed="false" disabled>已完成這堂課</button>
           <span id="completionMessage" class="muted" role="status" aria-live="polite">看完並練習後，可以手動標記已完成。</span>
@@ -329,7 +378,7 @@ async function refreshOverviewProgress(){
  }));
 }
 function panel(which){
- for(const id of ['overview','unitPanel','lessonPanel'])$(id).style.display=id===which?'block':'none';
+ for(const id of ['overview','unitPanel','lessonPanel','materialsPanel'])$(id).style.display=id===which?'block':'none';
  $('coachingPanel').style.display=which==='overview'?'block':'none';
 }
 async function studentMe(){
@@ -366,6 +415,40 @@ function protectedError(err,target){
  target.replaceChildren();
  const p=document.createElement('p');p.className='muted';p.textContent=err.message;target.appendChild(p);
 }
+async function showMaterials(serial){
+ const target=$('materialsList');target.textContent='正在確認講義下載資格…';
+ try{
+  const data=await authorizedJson('/api/student/materials');
+  if(serial!==routeSerial)return;
+  if(!Array.isArray(data.materials)||data.materials.length!==4)throw Error('講義資料格式不正確');
+  target.replaceChildren();
+  for(const item of data.materials){
+   if(!Number.isInteger(item.unit)||item.unit<1||item.unit>4)continue;
+   const tile=document.createElement('article');
+   tile.className='material-item'+(item.entitled?'':' material-locked');
+   const head=document.createElement('div');head.className='material-item-head';
+   const title=document.createElement('strong');
+   title.textContent='單元 '+item.unit+'｜'+names[item.unit-1];
+   head.appendChild(title);
+   const badge=document.createElement('span');badge.className='material-status';
+   if(!item.entitled){badge.textContent='尚未開通';badge.classList.add('material-status-locked')}
+   else if(!item.published){badge.textContent='講義準備中'}
+   else{badge.textContent='已提供';badge.classList.add('material-status-ready')}
+   head.appendChild(badge);tile.appendChild(head);
+   const description=document.createElement('p');description.className='muted';
+   description.textContent=!item.entitled?'此單元尚未開通。':
+    !item.published?'正式版 PDF 完成後，會從這裡提供下載列印。':
+    '已開通，可以下載 PDF 並自行列印。';
+   tile.appendChild(description);
+   if(item.entitled&&item.published){
+    const link=document.createElement('a');link.className='btn material-download';
+    link.textContent='下載 PDF ↓';link.href='/api/student/material-download?unit='+item.unit;
+    tile.appendChild(link);
+   }
+   target.appendChild(tile);
+  }
+ }catch(e){if(serial===routeSerial)protectedError(e,target)}
+}
 async function renderRoute(){
  if(!myAccess)return;
  const serial=++routeSerial;
@@ -379,7 +462,10 @@ async function renderRoute(){
  const unitMatch=/^unit\/([1-4])$/.exec(hash);
  const lessonMatch=/^lesson\/(u[1-4]-l0[1-8])$/.exec(hash);
  document.body.classList.toggle('lesson-view',Boolean(lessonMatch));
- if(unitMatch){
+ if(hash==='materials'){
+  panel('materialsPanel');window.scrollTo(0,0);
+  await showMaterials(serial);
+ }else if(unitMatch){
   const unit=Number(unitMatch[1]);panel('unitPanel');window.scrollTo(0,0);
   $('unitHeading').textContent='單元 '+unit+'｜'+names[unit-1];
   $('unitProgress').textContent='這個單元共有 '+lessonCounts[unit-1]+' 堂課';
@@ -429,7 +515,7 @@ async function renderRoute(){
   completeButton.textContent='已完成這堂課';$('completionMessage').textContent='觀看並練習後再手動標記完成。';
   $('playlist').replaceChildren();$('sideProgress').textContent='正在讀取課程目錄…';
   $('lessonHeading').textContent='正在讀取課程…';$('lessonDescription').textContent='';
-  $('lessonVideo').replaceChildren();$('lessonMessage').textContent='';$('lessonMaterial').replaceChildren();
+  $('lessonVideo').replaceChildren();$('lessonMessage').textContent='';
   try{
    const data=await authorizedJson('/api/student/lesson?id='+encodeURIComponent(id));
    if(serial!==routeSerial)return;
@@ -471,10 +557,6 @@ async function renderRoute(){
      frame.loading='lazy';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;
      frame.referrerPolicy='strict-origin-when-cross-origin';video.appendChild(frame);$('lessonVideo').appendChild(video);
      lessonPlayable=true;
-    }
-    if(item.materialsUrl){
-     const a=document.createElement('a');a.className='btn ghost';a.href=item.materialsUrl;
-     a.target='_blank';a.rel='noopener noreferrer';a.textContent='開啟課程講義 ↗';$('lessonMaterial').appendChild(a);
     }
    }else{
     $('lessonMessage').classList.add('lesson-unpublished-notice');
@@ -566,6 +648,7 @@ async function boot(){
  }catch(e){$('errorText').textContent=e.message;show('errorPanel')}
 }
 $('backUnits').onclick=()=>{location.hash='/'};
+$('backMaterials').onclick=()=>{location.hash='/'};
 $('retry').onclick=()=>location.reload();
 $('logout').onclick=async()=>{
  try{
