@@ -71,10 +71,10 @@ test('published lessons expose player details but never legacy per-lesson handou
  assert.equal(stored.published,true);
  assert.equal(studentLessonSummary(stored).videoUrl,undefined);
  assert.equal(studentLessonDetail(stored).provider,'youtube');
- assert.equal(studentLessonDetail(stored).materialsUrl,undefined);
+ assert.equal(studentLessonDetail(stored).materialsUrl,null);
  const draftOnly={...stored,published:false};
  assert.equal(studentLessonDetail(draftOnly).embedUrl,null);
- assert.equal(studentLessonDetail(draftOnly).materialsUrl,undefined);
+ assert.equal(studentLessonDetail(draftOnly).materialsUrl,null);
  assert.equal(normalizeStoredLesson(sampleId,JSON.stringify({...stored,id:'u2-l01'})),null);
 });
 test('admin can save and reread one lesson in storage; other slots remain drafts',async()=>{
