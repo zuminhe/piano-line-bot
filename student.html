@@ -221,21 +221,19 @@ main{padding-top:14px}.card{margin:12px 0}
 .materials-entry-copy strong{font-size:20px;font-weight:600;line-height:1.45}
 .materials-entry-copy small{font-size:15px;color:#58718b;line-height:1.6}
 .materials-entry-arrow{font-size:24px;font-weight:600;color:#2d658f;flex:0 0 auto}
-#materialsPanel h2{margin-top:22px;margin-bottom:8px}
-#materialsPanel .materials-intro{margin:0 0 21px;line-height:1.8}
-.materials-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.material-item{padding:20px;border:1px solid #cbdff0;background:#fbfdff;border-radius:14px;min-width:0}
-.material-item-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#materialsPanel h2{margin-top:15px;margin-bottom:7px}
+#materialsPanel .materials-intro{margin:0 0 17px;line-height:1.7;font-size:17px}
+.materials-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.material-item{padding:18px 20px;border:1px solid #cbdff0;background:#fbfdff;border-radius:14px;min-width:0;min-height:79px;display:flex;flex-direction:column;justify-content:center}
+.material-item-head{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
 .material-item strong{font-size:19px;line-height:1.5}
-.material-item p{font-size:16px;line-height:1.7;margin:12px 0 0}
 .material-locked{background:#f5f7fa;border-color:#e0e8f0}
 .material-status{display:inline-block;border-radius:99px;padding:4px 10px;background:#e7f2fd;color:#2b5e86;font-size:13px;font-weight:600;white-space:nowrap}
 .material-status-locked{background:#e9eef3;color:#5d7186}
 .material-status-ready{background:#e6f4eb;color:#256b4f}
 .material-download{margin-top:13px;font-size:16px}
-#materialsPanel .materials-note{font-size:14px;line-height:1.8;margin:20px 0 0}
 @media(max-width:767px){
- .materials-list{grid-template-columns:1fr;gap:11px}
+ .materials-list{grid-template-columns:1fr;gap:10px}
  .resources-section{margin-top:21px;padding-top:18px}
  #overview .resources-section h3{font-size:19px;margin-bottom:10px}
  .materials-entry{padding:13px 15px;margin:0;gap:12px;min-height:72px}
@@ -243,8 +241,10 @@ main{padding-top:14px}.card{margin:12px 0}
  .materials-entry-copy strong{font-size:19px}
  .materials-entry-copy small{font-size:14px}
  .materials-entry-arrow{font-size:21px}
- .material-item{padding:17px}
- #materialsPanel h2{margin-top:18px}
+ .material-item{padding:16px 17px;min-height:73px}
+ #materialsPanel{padding-top:20px}
+ #materialsPanel h2{margin-top:13px;margin-bottom:6px}
+ #materialsPanel .materials-intro{font-size:16px;line-height:1.65;margin-bottom:16px}
 }
 @media(max-width:360px){
  .materials-entry{gap:9px;padding:12px}
@@ -282,9 +282,8 @@ main{padding-top:14px}.card{margin:12px 0}
   <section class="card" id="materialsPanel">
     <button class="ghost" type="button" id="backMaterials">← 返回我的課程</button>
     <h2>我的講義</h2>
-    <p class="muted materials-intro">課程講義是搭配影片的練習教材。正式版提供後，可下載 PDF 自行列印，放在琴譜架上練習。</p>
+    <p class="muted materials-intro">講義完成後，會在已開通的單元提供 PDF 下載，方便自行列印。</p>
     <div id="materialsList" class="materials-list" aria-live="polite">正在確認講義下載資格…</div>
-    <p class="muted materials-note">你可以在這裡查看已開通單元的講義狀態。正式 PDF 提供後，就能自行下載並列印。</p>
   </section>
   <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
     <h2 id="unitHeading"></h2>
@@ -442,11 +441,6 @@ async function showMaterials(serial){
    else if(!item.published){badge.textContent='講義準備中'}
    else{badge.textContent='已提供';badge.classList.add('material-status-ready')}
    head.appendChild(badge);tile.appendChild(head);
-   const description=document.createElement('p');description.className='muted';
-   description.textContent=!item.entitled?'此單元尚未開通。':
-    !item.published?'正式版 PDF 完成後，會從這裡提供下載列印。':
-    '已開通，可以下載 PDF 並自行列印。';
-   tile.appendChild(description);
    if(item.entitled&&item.published){
     const link=document.createElement('a');link.className='btn material-download';
     link.textContent='下載 PDF ↓';link.href='/api/student/material-download?unit='+item.unit;
