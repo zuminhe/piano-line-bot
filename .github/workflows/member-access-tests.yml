@@ -16,6 +16,7 @@ on:
       - feature/detached-richmenu-provision-draft-20261021
       - feature/course-content-mvp-20261022
       - feature/official-catalog-responsive-sales-20261023
+      - feature/typography-standard-20261023
   pull_request:
     paths:
       - "lib/**"
