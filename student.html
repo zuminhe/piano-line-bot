@@ -197,6 +197,19 @@ main{padding-top:14px}.card{margin:12px 0}
 #unitPanel .unit-progress-bar::-moz-progress-bar{background:#28745c;border-radius:999px}
 @media(max-width:767px){#unitPanel .unit-progress-bar{height:10px;margin:3px 0 14px}}
 @media(prefers-reduced-motion:reduce){#unitPanel .unit-progress-bar::-webkit-progress-value{transition:none}}
+/* Unpublished lessons stay previewable but cannot be marked complete. */
+.complete-panel[hidden]{display:none!important}
+#lessonMessage.lesson-unpublished-notice{display:block;border:1px solid #d9e5f0;background:#f5f8fc;color:#365977;border-radius:12px;padding:15px 18px;margin:13px 0 15px;font-size:16px;line-height:1.7}
+.playlist .playlist-item{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;padding:10px 12px;min-height:52px}
+.playlist .playlist-lesson-name{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.playlist .playlist-unpublished-tag{flex:0 0 auto;border-radius:99px;background:#e9eef3;color:#526b81;font-size:12px;line-height:1.5;padding:2px 8px;white-space:nowrap}
+.playlist .playlist-unpublished{color:#53687d}
+.playlist .playlist-unpublished[aria-current=page]{color:#214c72}
+@media(max-width:600px){
+ #lessonMessage.lesson-unpublished-notice{font-size:16px;padding:13px 14px}
+ .playlist .playlist-item{gap:4px 7px;padding:10px 11px;min-height:48px}
+ .playlist .playlist-unpublished-tag{font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -232,7 +245,7 @@ main{padding-top:14px}.card{margin:12px 0}
         <div id="lessonVideo"></div>
         <p id="lessonMessage" class="muted"></p>
         <div id="lessonMaterial"></div>
-        <div class="complete-panel">
+        <div class="complete-panel" id="completionPanel" hidden>
           <button type="button" id="completeLesson" aria-pressed="false" disabled>已完成這堂課</button>
           <span id="completionMessage" class="muted" role="status" aria-live="polite">看完並練習後，可以手動標記已完成。</span>
         </div>
@@ -361,6 +374,8 @@ async function renderRoute(){
  // Remove the iframe on navigation: a hidden iframe may continue playing audio.
  $('lessonVideo').replaceChildren();
  $('lessonNavigation').replaceChildren();
+ $('completionPanel').hidden=true;
+ $('lessonMessage').classList.remove('lesson-unpublished-notice');
  const unitMatch=/^unit\/([1-4])$/.exec(hash);
  const lessonMatch=/^lesson\/(u[1-4]-l0[1-8])$/.exec(hash);
  document.body.classList.toggle('lesson-view',Boolean(lessonMatch));
@@ -421,6 +436,8 @@ async function renderRoute(){
    const item=data.lesson;let lessonPlayable=false;$('lessonHeading').textContent=item.title;
    $('courseSource').textContent='單元 '+item.unit+'｜'+item.sourceId;
    $('lessonDescription').textContent=item.description||'';
+   // Don't repeat the generic placeholder description above the unpublished notice.
+   if(!item.published&&item.description?.trim()==='正式影片尚未上架。')$('lessonDescription').textContent='';
    if(item.published&&(item.embedUrl||item.provider==='mux')){
     const video=document.createElement('div');video.className='video';
     if(item.provider==='mux'){
@@ -460,8 +477,11 @@ async function renderRoute(){
      a.target='_blank';a.rel='noopener noreferrer';a.textContent='開啟課程講義 ↗';$('lessonMaterial').appendChild(a);
     }
    }else{
-    $('lessonMessage').textContent='這堂課目前尚未上架影片，老師新增內容後就能從這裡觀看。';
+    $('lessonMessage').classList.add('lesson-unpublished-notice');
+    $('lessonMessage').textContent='尚未上架｜老師上架影片後，就能從這裡開始學習。';
    }
+   // No misleading completion action for an unreleased or unplayable video.
+   $('completionPanel').hidden=!lessonPlayable;
    try{
     const unitData=await authorizedJson('/api/student/unit?unit='+item.unit);
     if(serial!==routeSerial)return;
@@ -480,7 +500,17 @@ async function renderRoute(){
     for(const lesson of unitData.lessons){
      const a=document.createElement('a');
      a.href='/student#lesson/'+lesson.id;
-     a.textContent=lesson.sourceId+'　'+lesson.title;
+     a.className='playlist-item'+(lesson.published?'':' playlist-unpublished');
+     const name=document.createElement('span');
+     name.className='playlist-lesson-name';
+     name.textContent=lesson.sourceId+'　'+lesson.title;
+     a.appendChild(name);
+     if(!lesson.published){
+      const status=document.createElement('span');
+      status.className='playlist-unpublished-tag';
+      status.textContent='尚未上架';
+      a.appendChild(status);
+     }
      if(lesson.id===id)a.setAttribute('aria-current','page');
      if(done.has(lesson.id)){
       const span=document.createElement('span');span.textContent=' ✓';span.className='done';a.appendChild(span);
