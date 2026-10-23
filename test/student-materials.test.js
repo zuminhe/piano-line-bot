@@ -74,3 +74,13 @@ test('learner homepage places handouts after the four-unit course grid',()=>{
  assert.match(html,/id="resourcesHeading">課程講義/);
  assert.doesNotMatch(html,/紙本寄送方案仍在規劃中/);
 });
+
+test('handouts mobile page is concise and respects original gated download flow',()=>{
+ const html=readFileSync(new URL('../student.html',import.meta.url),'utf8');
+ assert.match(html,/講義完成後，會在已開通的單元提供 PDF 下載/);
+ assert.doesNotMatch(html,/正式版 PDF 完成後，會從這裡提供下載列印/);
+ assert.doesNotMatch(html,/class="muted materials-note"/);
+ assert.match(html,/\.material-item\{[^}]*min-height:79px/);
+ assert.match(html,/\.material-item\{padding:16px 17px;min-height:73px\}/);
+ assert.match(html,/if\(item\.entitled&&item\.published\)/);
+});
