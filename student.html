@@ -43,6 +43,7 @@ button:disabled{cursor:not-allowed;opacity:.65}
 .playlist a:focus-visible{outline:3px solid #80b6ed}
 .playlist .done{color:#29704e;font-size:13px}
 .complete-panel{border:1px solid #d9e6f0;border-radius:13px;padding:16px;margin-top:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.complete-panel[hidden]{display:none!important}
 .complete-panel button[aria-pressed=true]{background:#1e7054}
 .progress-count{font-size:14px;color:#456888;margin:10px 0}
 #courseSource{font-size:13px;color:#69829a}
@@ -613,6 +614,8 @@ async function renderRoute(){
        credentials:'same-origin',body:JSON.stringify({id,completed:next})
       });
       const body=await r.json().catch(()=>({}));
+      // Ignore a previous lesson's late response after navigating away.
+      if(serial!==routeSerial)return;
       if(!r.ok)throw Error(body.error||'進度暫時無法儲存');
       if(next)done.add(id);else done.delete(id);
       for(const link of playlist.querySelectorAll('a')){
@@ -624,9 +627,10 @@ async function renderRoute(){
       }
       applyCompletion();
      }catch(e){
+      if(serial!==routeSerial)return;
       applyCompletion();
       $('completionMessage').textContent='儲存失敗，進度未變更：'+e.message;
-     }finally{completeButton.disabled=!lessonPlayable}
+     }finally{if(serial===routeSerial)completeButton.disabled=!lessonPlayable}
     };
    }catch(e){if(serial===routeSerial){
     completeButton.disabled=true;
