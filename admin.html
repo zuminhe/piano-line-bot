@@ -40,6 +40,11 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;
 #courseAdmin .course-status-tag.published{background:#e4f3eb;color:#1e7351}
 #courseAdmin .course-editor{border-top:1px solid #dde8f1;padding-top:20px}
 #courseAdmin .course-editor h3{font-size:19px;margin:0 0 9px}
+#courseAdmin .course-read-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:9px}
+#courseAdmin .course-read-row button{margin:0;flex:0 0 auto}
+#courseAdmin #courseReadStatus{font-size:15px;line-height:1.5}
+#courseAdmin #courseReadStatus.ok{color:#1e7351}
+#courseAdmin #courseReadStatus.error{color:#a72b38}
 #courseAdmin .course-selection{font-size:16px;font-weight:600;background:#f0f5fb;border-radius:8px;padding:12px;color:#365b7d}
 #courseAdmin .course-publish-label{display:flex;align-items:center;gap:3px;font-size:16px;line-height:1.65;margin-top:20px}
 #courseAdmin #saveCourseLesson:disabled{opacity:.45;cursor:not-allowed}
@@ -104,7 +109,10 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;
 <div class="course-editor">
  <h3>編輯課程內容</h3>
  <p id="courseSelection" class="course-selection">請選擇一堂課並讀取，才能編輯或儲存。</p>
- <button id="loadCourseLesson" type="button" class="secondary">讀取選定課程</button>
+ <div class="course-read-row">
+  <button id="loadCourseLesson" type="button" class="secondary">重新讀取目前課程</button>
+  <span id="courseReadStatus" class="hint" role="status" aria-live="polite">選擇課次後，系統會自動讀取。</span>
+ </div>
  <label for="courseTitle">課程名稱</label><input id="courseTitle" maxlength="80" placeholder="讀取課程後顯示正式課名">
  <label for="courseVideo">影片網址或 Mux Playback ID</label>
  <input id="courseVideo" type="text" autocomplete="off" spellcheck="false" placeholder="貼上 Mux Playback ID，或 YouTube／Vimeo 網址">
@@ -137,7 +145,10 @@ $('loginButton').onclick=()=>run(async()=>{
  secret=$('secret').value;$('secret').value='';
  const data=await api('GET');
  $('plan').replaceChildren();Object.entries(data.plans).forEach(([code,plan])=>{const o=element('option',plan.label,$('plan'));o.value=code});
- $('login').style.display='none';$('app').style.display='block';await loadHistory();await refreshCourseOverview();
+ $('login').style.display='none';$('app').style.display='block';
+ await loadHistory();
+ await refreshCourseOverview();
+ await loadCourseLesson();
 });
 function inputs() {
  const val=$('expiry').value;
@@ -348,7 +359,7 @@ function resetCourseEditor(message){
  $('coursePublished').checked=false;
  for(const id of courseEditableFields)$(id).disabled=true;
  $('saveCourseLesson').disabled=true;
- $('courseSelection').textContent='目前選擇：'+selectedCourseId+'。請先讀取這堂課，才能編輯或儲存。';
+ $('courseSelection').textContent='目前選擇：'+selectedCourseId+'。系統正在確認課程資料，完成後即可編輯。';
  $('courseStatus').textContent=message||'尚未讀取課程。';
  $('courseStatus').className='hint';
 }
@@ -372,9 +383,12 @@ function courseSelectionChanged(unitChanged=false){
  if(!courseChangeAllowed()){restoreCourseSelection();return false}
  if(unitChanged){populateCourseLessonSelect();$('courseNumber').value='1'}
  selectedCourseId=currentCourseLessonId();
- resetCourseEditor('已切換課程，請按「讀取選定課程」再編輯。');
+ resetCourseEditor('正在自動讀取選定的課程…');
+ $('courseReadStatus').textContent='正在切換並讀取 '+selectedCourseId+'…';
+ $('courseReadStatus').className='hint';
  updateOverviewSelection();
  if(unitChanged)void refreshCourseOverview();
+ void loadCourseLesson();
  return true;
 }
 async function refreshCourseOverview(){
@@ -412,7 +426,7 @@ async function refreshCourseOverview(){
      if(!courseChangeAllowed())return;
      $('courseNumber').value=String(Number(lesson.id.slice(-2)));
      selectedCourseId=currentCourseLessonId();
-     resetCourseEditor('請確認課次後讀取。');
+     resetCourseEditor('正在自動讀取選定的課程…');
     }
     updateOverviewSelection();
     await loadCourseLesson();
@@ -428,12 +442,16 @@ async function refreshCourseOverview(){
  }
 }
 async function loadCourseLesson(){
+ if(courseSaving)return;
  const id=currentCourseLessonId();
  if(courseHasUnsavedEdits()&&!confirm('確定重新讀取並放棄尚未儲存的修改？'))return;
+ const previouslyLoaded=courseEditorLoadedId===id;
  const serial=++courseLoadSerial;
  const btn=$('loadCourseLesson');
  btn.disabled=true;
  $('saveCourseLesson').disabled=true;
+ $('courseReadStatus').textContent='正在'+(previouslyLoaded?'重新':'自動')+'讀取 '+id+'…';
+ $('courseReadStatus').className='hint';
  $('courseStatus').textContent='正在讀取 '+id+'…';$('courseStatus').className='hint';
  try{
   const response=await api('GET',{action:'course_lesson',id});
@@ -450,13 +468,17 @@ async function loadCourseLesson(){
   $('saveCourseLesson').disabled=false;
   $('courseSelection').textContent='正在編輯：'+id+'｜'+(lesson.title||'未命名課程')+
    (lesson.published?'（目前已上架）':'（目前尚未上架）');
+  $('courseReadStatus').textContent=(previouslyLoaded?'已重新讀取':'已自動讀取')+'：'+id+' ✓';
+  $('courseReadStatus').className='ok';
   $('courseStatus').textContent='已讀取 '+id+'，確認後可編輯及儲存。';
   $('courseStatus').className='ok';
  }catch(e){
   if(serial!==courseLoadSerial)return;
   resetCourseEditor('讀取失敗：'+e.message);
+  $('courseReadStatus').textContent='讀取失敗，請按「重新讀取目前課程」';
+  $('courseReadStatus').className='error';
   $('courseStatus').className='error';
- }finally{btn.disabled=false}
+ }finally{if(serial===courseLoadSerial)btn.disabled=false}
 }
 $('loadCourseLesson').onclick=()=>{void loadCourseLesson()};
 $('saveCourseLesson').onclick=async()=>{
@@ -500,7 +522,7 @@ $('saveCourseLesson').onclick=async()=>{
 $('courseUnit').addEventListener('change',()=>{courseSelectionChanged(true)});
 $('courseNumber').addEventListener('change',()=>{courseSelectionChanged(false)});
 $('refreshCourseOverview').onclick=()=>{void refreshCourseOverview()};
-resetCourseEditor('請先讀取選定的課程。');
+resetCourseEditor('選擇課次後將自動讀取。');
 async function loadHistory(){
  const data=await api('GET',{action:'vouchers'});
  const div=$('history');div.replaceChildren();
