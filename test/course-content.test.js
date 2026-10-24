@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {COURSE_UNITS,parseLessonId,lessonId,canViewUnit,videoEmbed,validateLessonDraft,safeMaterialUrl} from '../lib/course-content.js';
 import {normalizeStoredLesson,placeholderLesson,studentLessonSummary,studentLessonDetail,listUnitLessons,saveLesson} from '../lib/course-store.js';
-import {serveStudentUnit} from '../api/student/unit.js';
-import {serveStudentLesson} from '../api/student/lesson.js';
+import {serveStudentUnit} from '../lib/http/student-unit.js';
+import {serveStudentLesson} from '../lib/http/student-lesson.js';
 import {readFileSync} from 'node:fs';
 
 const sampleId='u1-l01';
@@ -66,11 +66,12 @@ test('published video requires valid media and HTTPS whitelisted materials',()=>
  assert.throws(()=>validateLessonDraft({...draft(),materialsUrl:'https://malware.test/a.pdf'}),/講義/);
  assert.equal(safeMaterialUrl('https://docs.google.com/document/d/1'), 'https://docs.google.com/document/d/1');
 });
-test('draft lessons never expose player URL to students, published lessons do',()=>{
+test('published lessons expose player details but never legacy per-lesson handout URLs',()=>{
  const stored=normalizeStoredLesson(sampleId,JSON.stringify({...validateLessonDraft(draft()),updatedAt:'2026-10-22T00:00:00Z'}));
  assert.equal(stored.published,true);
  assert.equal(studentLessonSummary(stored).videoUrl,undefined);
  assert.equal(studentLessonDetail(stored).provider,'youtube');
+ assert.equal(studentLessonDetail(stored).materialsUrl,null);
  const draftOnly={...stored,published:false};
  assert.equal(studentLessonDetail(draftOnly).embedUrl,null);
  assert.equal(studentLessonDetail(draftOnly).materialsUrl,null);

@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import {Redis} from '@upstash/redis';
-import {loadLesson,saveLesson} from '../lib/course-store.js';
+import {loadLesson,listUnitLessons,saveLesson} from '../lib/course-store.js';
 import {parseLessonId} from '../lib/course-content.js';
 import {prepareUnlinkedTestMenu} from '../lib/detached-richmenu-provision.js';
 import {saveExistingPersonalMenu} from '../lib/menu-backup-service.js';
@@ -29,6 +29,16 @@ export default async function handler(req,res) {
       if (req.query.action === 'course_lesson') {
         if (!parseLessonId(req.query.id)) return res.status(404).json({error:'LESSON_NOT_FOUND'});
         return res.json({lesson:await loadLesson(Redis.fromEnv(),req.query.id)});
+      }
+      if (req.query.action === 'course_unit') {
+        const raw=String(req.query.unit??'');
+        if (!/^[1-4]$/.test(raw)) return res.status(404).json({error:'UNIT_NOT_FOUND'});
+        const unit=Number(raw);
+        const lessons=await listUnitLessons(Redis.fromEnv(),unit);
+        return res.json({unit,lessons:lessons.map(l=>({
+          id:l.id,sourceId:l.sourceId,title:l.title,
+          published:l.published===true,provider:l.provider||null
+        }))});
       }
       return res.json({plans:PLANS, message:'Use action=member, members or vouchers'});
     }

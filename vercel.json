@@ -43,15 +43,35 @@
     },
     {
       "source": "/api/student/unit",
-      "destination": "/api/student/unit.js"
+      "destination": "/api/course.js?operation=unit"
     },
     {
       "source": "/api/student/lesson",
-      "destination": "/api/student/lesson.js"
+      "destination": "/api/course.js?operation=lesson"
     },
     {
       "source": "/api/student/progress",
-      "destination": "/api/student/progress.js"
+      "destination": "/api/course.js?operation=progress"
+    },
+    {
+      "source": "/api/student/playback",
+      "destination": "/api/course.js?operation=playback"
+    },
+    {
+      "source": "/api/student/materials",
+      "destination": "/api/course.js?operation=materials"
+    },
+    {
+      "source": "/api/student/material-download",
+      "destination": "/api/course.js?operation=materialDownload"
+    },
+    {
+      "source": "/api/checkout/quote",
+      "destination": "/api/course.js?operation=quote"
+    },
+    {
+      "source": "/api/checkout/draft",
+      "destination": "/api/course.js?operation=draft"
     },
     {
       "source": "/student",

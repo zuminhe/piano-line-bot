@@ -14,6 +14,52 @@ small,.hint{color:#687c90}.error{color:#aa2131}.ok{color:#196b4a}.blocked{color:
 .row{display:flex;flex-wrap:wrap;gap:12px}.row>*{flex:1;min-width:190px}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;border-radius:8px}
 .card{border:1px solid #e4e8ee;border-radius:8px;padding:12px;margin:8px 0}
+
+/* Instructor-first course manager; keep student authentication and grant tools unchanged. */
+.admin-quick-nav{display:flex;gap:10px;flex-wrap:wrap;padding:8px 0 2px}
+.admin-quick-nav a{padding:10px 13px;border-radius:9px;text-decoration:none;color:#17456c;font-size:15px;font-weight:650;background:#e6effa;border:1px solid #d2e1f1}
+.admin-quick-nav a:focus-visible,.course-overview-item:focus-visible{outline:3px solid #80b6ed;outline-offset:2px}
+#courseAdmin{scroll-margin-top:16px}
+#courseAdmin h2{font-size:clamp(21px,2vw,26px);line-height:1.45}
+#courseAdmin h2 small{font-size:13px;font-weight:500;color:#6d8094}
+#courseAdmin label{font-size:16px;font-weight:600;color:#284660}
+#courseAdmin input:not([type=checkbox]),#courseAdmin select,#courseAdmin textarea{font-size:17px;line-height:1.5;max-width:none}
+#courseAdmin .hint{font-size:15px;line-height:1.75}
+#courseAdmin code{background:#e9f0f8;padding:2px 5px;border-radius:5px}
+#courseAdmin .course-overview-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:17px 0 2px}
+#courseAdmin .course-overview-heading h3{font-size:18px;margin:0}
+#courseAdmin .course-overview-refresh{font-size:14px;margin:0;padding:9px 12px}
+#courseAdmin .course-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 19px}
+#courseAdmin .course-overview-item{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;width:100%;margin:0;padding:14px;text-align:left;background:#f9fbfe;border:1px solid #d9e5f1;border-radius:11px;color:#254562;min-height:80px}
+#courseAdmin .course-overview-item:hover{background:#eef6fd;border-color:#92b6d3}
+#courseAdmin .course-overview-item[aria-pressed=true]{border:2px solid #356d9c;background:#edf5fc;padding:13px}
+#courseAdmin .course-overview-copy{display:flex;flex-direction:column;min-width:0;gap:3px}
+#courseAdmin .course-overview-title{font-size:16px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+#courseAdmin .course-overview-provider{font-size:13px;color:#647e94;line-height:1.4}
+#courseAdmin .course-status-tag{flex:0 0 auto;padding:3px 8px;border-radius:99px;font-size:12px;font-weight:600;line-height:1.5;white-space:nowrap;background:#e8eef4;color:#5d7287}
+#courseAdmin .course-status-tag.published{background:#e4f3eb;color:#1e7351}
+#courseAdmin .course-editor{border-top:1px solid #dde8f1;padding-top:20px}
+#courseAdmin .course-editor h3{font-size:19px;margin:0 0 9px}
+#courseAdmin .course-read-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:9px}
+#courseAdmin .course-read-row button{margin:0;flex:0 0 auto}
+#courseAdmin #courseReadStatus{font-size:15px;line-height:1.5}
+#courseAdmin #courseReadStatus.ok{color:#1e7351}
+#courseAdmin #courseReadStatus.error{color:#a72b38}
+#courseAdmin .course-selection{font-size:16px;font-weight:600;background:#f0f5fb;border-radius:8px;padding:12px;color:#365b7d}
+#courseAdmin .course-publish-label{display:flex;align-items:center;gap:3px;font-size:16px;line-height:1.65;margin-top:20px}
+#courseAdmin #saveCourseLesson:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:650px){
+ .admin-quick-nav{gap:8px}
+ .admin-quick-nav a{font-size:14px;padding:9px}
+ #courseAdmin{padding:16px}
+ #courseAdmin .course-overview{grid-template-columns:1fr;gap:8px}
+ #courseAdmin .course-overview-item{min-height:65px;padding:12px}
+ #courseAdmin .course-overview-item[aria-pressed=true]{padding:11px}
+ #courseAdmin .course-overview-title{font-size:16px}
+ #courseAdmin .course-editor{padding-top:15px}
+ #courseAdmin .course-selection{font-size:15px}
+}
+
 </style>
 </head>
 <body>
@@ -21,13 +67,18 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;
 <main>
 <section id="login"><h2>管理員登入</h2><label for="secret">管理員密鑰</label><input id="secret" type="password" autocomplete="off"><p class="hint">僅在本次分頁暫存密鑰，關閉或重新整理即消失。請勿在他人電腦登入。</p><button id="loginButton">確認登入</button></section>
 <div id="app">
-<section><h2>手動發送購課驗證碼</h2><p class="hint">付款自動串接尚未啟用。請先到 Portaly 確認款項後，再發碼。</p>
+<nav class="admin-quick-nav" aria-label="管理功能快速導覽">
+  <a href="#courseAdmin">課程與影片管理</a>
+  <a href="#paymentAdmin">購課驗證碼</a>
+  <a href="#memberAdmin">學員權限管理</a>
+</nav>
+<section id="paymentAdmin"><h2>手動發送購課驗證碼</h2><p class="hint">付款自動串接尚未啟用。請先到 Portaly 確認款項後，再發碼。</p>
 <label for="plan">購買權益</label><select id="plan"></select>
 <div class="row"><div><label for="order">訂單編號</label><input id="order"></div><div><label for="note">備註</label><input id="note"></div></div>
 <label for="expiry">到期日（僅訂閱必填）</label><input type="date" id="expiry">
 <button id="issue">核對付款後，建立驗證碼</button><pre id="voucher">尚未產生</pre>
 </section>
-<section><h2>學員個別權限管理</h2>
+<section id="memberAdmin"><h2>學員個別權限管理</h2>
 <label for="userId">LINE userId（以 U 開頭）</label><input id="userId" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
 <div><button id="lookup">查詢學員</button><button id="grant">人工補開所選方案</button><button id="sync" class="secondary">重新同步圖文選單</button></div>
 <p id="menuSyncStatus" class="hint" role="status" aria-live="polite">尚未執行圖文選單同步。</p>
@@ -42,21 +93,36 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2fa;padding:16px;
 <p id="testMenuProvisionStatus" class="hint" role="status" aria-live="polite">尚未建立；需要另外啟用安全開關。</p>
 <p class="hint">人工補開需要正確的 LINE userId；學員可以先輸入驗證碼自動綁定。</p><div id="member"></div>
 </section>
-<section><h2>課程影片與講義管理（測試版）</h2>
-<p class="hint">影片本身請上傳 YouTube 不公開或 Vimeo；此處儲存每堂課的名稱、影片連結及講義。目前依 2026-10-23 草稿目錄列出共 23 堂正式課名，後續如有修改將沿用原課次 ID。未勾選上架時，學員無法播放。</p>
+<section id="courseAdmin">
+<h2>課程與影片管理 <small>｜測試版</small></h2>
+<p class="hint">先在 Mux 上傳影片並設定 <strong>Signed</strong> 播放政策，再將該影片的 <strong>Playback ID</strong> 貼到下方。課程講義已改由學員中心的「我的講義」獨立管理，此處不需要逐堂設定。</p>
 <div class="row">
- <div><label for="courseUnit">單元</label><select id="courseUnit"><option value="1">單元 1｜基礎樂理</option><option value="2">單元 2｜認識和弦</option><option value="3">單元 3｜和弦變化</option><option value="4">單元 4｜和弦應用</option></select></div>
- <div><label for="courseNumber">課程位置</label><select id="courseNumber"></select></div>
+ <div><label for="courseUnit">選擇單元</label><select id="courseUnit"><option value="1">單元 1｜基礎樂理</option><option value="2">單元 2｜認識和弦</option><option value="3">單元 3｜和弦變化</option><option value="4">單元 4｜和弦應用</option></select></div>
+ <div><label for="courseNumber">選擇課次</label><select id="courseNumber"></select></div>
 </div>
-<button id="loadCourseLesson" class="secondary">讀取這堂課</button>
-<label for="courseTitle">課程名稱</label><input id="courseTitle" maxlength="80" placeholder="例如：第 01 課｜正式課名">
-<label for="courseVideo">YouTube／Vimeo 影片網址</label><input id="courseVideo" type="url" placeholder="https://youtu.be/...">
-<label for="courseMaterials">講義分享網址（選填）</label><input id="courseMaterials" type="url" placeholder="https://drive.google.com/...">
-<label for="courseDescription">課程說明（選填）</label><textarea id="courseDescription" rows="4" maxlength="800" style="display:block;width:100%;max-width:750px;padding:12px;font:inherit;border:1px solid #c2cad6;border-radius:8px"></textarea>
-<label><input id="coursePublished" type="checkbox" style="width:auto;max-width:none;margin-right:8px">上架給已開通單元的學員觀看</label>
-<div><button id="saveCourseLesson">儲存這堂課</button></div>
-<p id="courseStatus" class="hint" role="status" aria-live="polite">請先點「讀取這堂課」，確認後再修改。未經上架的課程不會播放影片。</p>
-<p class="hint">注意：YouTube 不公開影片仍可經由網址分享；要限制嵌入網站請評估 Vimeo 的網域限制。</p>
+<div class="course-overview-heading">
+ <h3>此單元的課程狀態</h3>
+ <button type="button" id="refreshCourseOverview" class="secondary course-overview-refresh">重新整理狀態</button>
+</div>
+<p id="courseOverviewStatus" class="hint" role="status" aria-live="polite">登入後會顯示每堂課的上架狀態。</p>
+<div id="courseOverview" class="course-overview" aria-label="本單元課程列表"></div>
+<div class="course-editor">
+ <h3>編輯課程內容</h3>
+ <p id="courseSelection" class="course-selection">請選擇一堂課並讀取，才能編輯或儲存。</p>
+ <div class="course-read-row">
+  <button id="loadCourseLesson" type="button" class="secondary">重新讀取目前課程</button>
+  <span id="courseReadStatus" class="hint" role="status" aria-live="polite">選擇課次後，系統會自動讀取。</span>
+ </div>
+ <label for="courseTitle">課程名稱</label><input id="courseTitle" maxlength="80" placeholder="讀取課程後顯示正式課名">
+ <label for="courseVideo">影片網址或 Mux Playback ID</label>
+ <input id="courseVideo" type="text" autocomplete="off" spellcheck="false" placeholder="貼上 Mux Playback ID，或 YouTube／Vimeo 網址">
+ <p class="hint">貼上 Mux 的 <strong>Playback ID</strong> 即可，儲存時會自動加上 <code>mux:signed:</code>；請勿貼入 Asset ID、Mux Signing Key 或任何密鑰。</p>
+ <label for="courseDescription">課程說明（選填）</label><textarea id="courseDescription" rows="4" maxlength="800" style="display:block;width:100%;max-width:750px;padding:12px;font:inherit;border:1px solid #c2cad6;border-radius:8px"></textarea>
+ <label class="course-publish-label"><input id="coursePublished" type="checkbox" style="width:auto;max-width:none;margin-right:8px">上架給已購買這個單元的學員觀看</label>
+ <button id="saveCourseLesson" type="button" disabled>儲存這堂課</button>
+ <p id="courseStatus" class="hint" role="status" aria-live="polite">尚未讀取課程。請先從清單選一堂，或點「讀取選定課程」。</p>
+ <p class="hint">儲存後，已上架的影片會對具有該單元權限的學員顯示；取消勾選並儲存即可下架。Mux 私有影片仍須由伺服器核發播放憑證。</p>
+</div>
 </section>
 <section><h2>最近產生的驗證紀錄</h2><button id="refresh" class="secondary">重新整理</button><div id="history"></div></section>
 </div>
@@ -74,12 +140,15 @@ async function api(method,params,body) {
   return data;
 }
 function element(tag,text,parent) {const e=document.createElement(tag);if(text!==undefined)e.textContent=String(text);parent.appendChild(e);return e}
-async function run(fn){try{await fn();status('操作完成')}catch(e){status(e.message,true)}}
+async function run(fn){try{const result=await fn();if(result!==false)status('操作完成')}catch(e){status(e.message,true)}}
 $('loginButton').onclick=()=>run(async()=>{
  secret=$('secret').value;$('secret').value='';
  const data=await api('GET');
  $('plan').replaceChildren();Object.entries(data.plans).forEach(([code,plan])=>{const o=element('option',plan.label,$('plan'));o.value=code});
- $('login').style.display='none';$('app').style.display='block';await loadHistory();
+ $('login').style.display='none';$('app').style.display='block';
+ await loadHistory();
+ await refreshCourseOverview();
+ await loadCourseLesson();
 });
 function inputs() {
  const val=$('expiry').value;
@@ -88,10 +157,15 @@ function inputs() {
 }
 function userId(){return $('userId').value.trim()}
 $('issue').onclick=()=>run(async()=>{
- if(!confirm('你已在 Portaly 核對完成付款，確定建立一次性驗證碼？'))return;
- const obj=await api('POST',null,{action:'issue_code',...inputs()});
- $('voucher').textContent='驗證碼（只顯示本次）：'+obj.code+'\n有效至：'+obj.expiresAt+'\n請私下交給學員，切勿公開。';
- await loadHistory();
+ const button=$('issue');
+ if(button.disabled)return false;
+ if(!confirm('你已在 Portaly 核對完成付款，確定建立一次性驗證碼？'))return false;
+ button.disabled=true;
+ try{
+  const obj=await api('POST',null,{action:'issue_code',...inputs()});
+  $('voucher').textContent='驗證碼（只顯示本次）：'+obj.code+'\n有效至：'+obj.expiresAt+'\n請私下交給學員，切勿公開。';
+  await loadHistory();
+ }finally{button.disabled=false}
 });
 async function loadMember(){
  const data=await api('GET',{action:'member',userId:userId()});
@@ -112,8 +186,14 @@ async function loadMember(){
 }
 $('lookup').onclick=()=>run(loadMember);
 $('grant').onclick=()=>run(async()=>{
- if(!confirm('確認人工開通該學員的「'+$('plan').selectedOptions[0].textContent+'」權益？'))return;
- await api('POST',null,{action:'grant',userId:userId(),...inputs()});await loadMember();
+ const button=$('grant');
+ if(button.disabled)return false;
+ if(!confirm('確認人工開通該學員的「'+$('plan').selectedOptions[0].textContent+'」權益？'))return false;
+ button.disabled=true;
+ try{
+  await api('POST',null,{action:'grant',userId:userId(),...inputs()});
+  await loadMember();
+ }finally{button.disabled=false}
 });
 const menuFeedback={
   disabled:['安全阻擋（disabled）：測試模式未啟用，沒有向 LINE 發送選單修改指令。','blocked'],
@@ -256,35 +336,207 @@ populateCourseLessonSelect();
 function currentCourseLessonId(){
  return 'u'+$('courseUnit').value+'-l'+String($('courseNumber').value).padStart(2,'0');
 }
-async function loadCourseLesson(){
- const r=await api('GET',{action:'course_lesson',id:currentCourseLessonId()});
- const l=r.lesson||{};
- $('courseTitle').value=l.title||'';
- $('courseVideo').value=l.videoUrl||'';
- $('courseMaterials').value=l.materialsUrl||'';
- $('courseDescription').value=l.description||'';
- $('coursePublished').checked=l.published===true;
- $('courseStatus').textContent='已讀取 '+currentCourseLessonId()+'。';
- $('courseStatus').className='ok';
+let selectedCourseId=currentCourseLessonId();
+let courseEditorLoadedId=null,courseEditorSnapshot=null,courseLoadSerial=0,courseOverviewSerial=0,courseSaving=false;
+const courseEditableFields=['courseTitle','courseVideo','courseDescription','coursePublished'];
+function normalizeCourseVideo(raw){
+ const value=String(raw||'').trim();
+ // Mux signs playback IDs server-side. NEVER paste a Mux signing private key.
+ return /^[A-Za-z0-9]{10,128}$/.test(value)?'mux:signed:'+value:value;
 }
-$('loadCourseLesson').onclick=()=>run(loadCourseLesson);
-$('saveCourseLesson').onclick=async()=>{
- const btn=$('saveCourseLesson'),feedback=$('courseStatus');
- if(btn.disabled)return;
- const draft={id:currentCourseLessonId(),title:$('courseTitle').value,
-   videoUrl:$('courseVideo').value,materialsUrl:$('courseMaterials').value,
-   description:$('courseDescription').value,published:$('coursePublished').checked};
- if(!confirm(draft.published?'要讓已購買這個單元的學員看到這堂影片嗎？':'確定儲存未上架的課程內容？'))return;
- btn.disabled=true;feedback.textContent='正在儲存課程…';feedback.className='hint';
+function getCourseDraft(){
+ return {
+  id:currentCourseLessonId(),
+  title:$('courseTitle').value.trim(),
+  videoUrl:normalizeCourseVideo($('courseVideo').value),
+  materialsUrl:null, // Per-lesson handout URLs were retired for the central library.
+  description:$('courseDescription').value.trim(),
+  published:$('coursePublished').checked
+ };
+}
+function courseHasUnsavedEdits(){
+ if(courseEditorLoadedId===null||courseEditorSnapshot===null)return false;
+ // A changed selector alone is not an unsaved edit to the *loaded* lesson.
+ const draft=getCourseDraft();
+ draft.id=courseEditorLoadedId;
+ return JSON.stringify(draft)!==courseEditorSnapshot;
+}
+function resetCourseEditor(message){
+ courseLoadSerial++;
+ courseEditorLoadedId=null;courseEditorSnapshot=null;
+ $('courseTitle').value='';
+ $('courseVideo').value='';
+ $('courseDescription').value='';
+ $('coursePublished').checked=false;
+ for(const id of courseEditableFields)$(id).disabled=true;
+ $('saveCourseLesson').disabled=true;
+ $('courseSelection').textContent='目前選擇：'+selectedCourseId+'。系統正在確認課程資料，完成後即可編輯。';
+ $('courseStatus').textContent=message||'尚未讀取課程。';
+ $('courseStatus').className='hint';
+}
+function restoreCourseSelection(){
+ const m=/^u([1-4])-l(0[1-8])$/.exec(selectedCourseId);
+ if(!m)return;
+ $('courseUnit').value=m[1];
+ populateCourseLessonSelect();
+ $('courseNumber').value=String(Number(m[2]));
+}
+function courseChangeAllowed(){
+ return !courseHasUnsavedEdits()||confirm('這堂課有尚未儲存的修改。確定放棄修改並切換課程？');
+}
+function updateOverviewSelection(){
+ for(const item of $('courseOverview').querySelectorAll('button[data-lesson-id]')){
+  item.setAttribute('aria-pressed',String(item.dataset.lessonId===selectedCourseId));
+ }
+}
+function courseSelectionChanged(unitChanged=false){
+ if(courseSaving){restoreCourseSelection();return false}
+ if(!courseChangeAllowed()){restoreCourseSelection();return false}
+ if(unitChanged){populateCourseLessonSelect();$('courseNumber').value='1'}
+ selectedCourseId=currentCourseLessonId();
+ resetCourseEditor('正在自動讀取選定的課程…');
+ $('courseReadStatus').textContent='正在切換並讀取 '+selectedCourseId+'…';
+ $('courseReadStatus').className='hint';
+ updateOverviewSelection();
+ if(unitChanged)void refreshCourseOverview();
+ void loadCourseLesson();
+ return true;
+}
+async function refreshCourseOverview(){
+ const unit=Number($('courseUnit').value),serial=++courseOverviewSerial;
+ const target=$('courseOverview'),feedback=$('courseOverviewStatus');
+ target.replaceChildren();
+ feedback.className='hint';feedback.textContent='正在讀取單元 '+unit+' 的課程狀態…';
  try{
-  const r=await api('POST',null,{action:'save_course_lesson',lesson:draft});
-  feedback.textContent='已儲存：'+r.lesson.title+(r.lesson.published?'（已上架）':'（尚未上架）');
+  const data=await api('GET',{action:'course_unit',unit:String(unit)});
+  if(serial!==courseOverviewSerial||Number($('courseUnit').value)!==unit)return;
+  if(!Array.isArray(data.lessons)||data.lessons.length!==officialLessonTitles[unit-1].length){
+   throw Error('課程清單資料不完整');
+  }
+  let published=0;
+  for(const lesson of data.lessons){
+   const btn=document.createElement('button');btn.type='button';btn.className='course-overview-item';
+   btn.dataset.lessonId=lesson.id;
+   const box=document.createElement('span');box.className='course-overview-copy';
+   const name=document.createElement('span');name.className='course-overview-title';
+   name.textContent=lesson.sourceId+'｜'+lesson.title;box.appendChild(name);
+   if(lesson.published&&lesson.provider){
+    const provider=document.createElement('span');provider.className='course-overview-provider';
+    provider.textContent='影片：'+(lesson.provider==='mux'?'Mux 私有播放':lesson.provider==='youtube'?'YouTube':'Vimeo');
+    box.appendChild(provider);
+   }
+   btn.appendChild(box);
+   const badge=document.createElement('span');
+   badge.className='course-status-tag'+(lesson.published?' published':'');
+   badge.textContent=lesson.published?'已上架':'尚未上架';
+   if(lesson.published)published++;
+   btn.appendChild(badge);
+   btn.onclick=async()=>{
+    if(courseSaving)return;
+    if(selectedCourseId!==lesson.id){
+     if(!courseChangeAllowed())return;
+     $('courseNumber').value=String(Number(lesson.id.slice(-2)));
+     selectedCourseId=currentCourseLessonId();
+     resetCourseEditor('正在自動讀取選定的課程…');
+    }
+    updateOverviewSelection();
+    await loadCourseLesson();
+   };
+   target.appendChild(btn);
+  }
+  feedback.textContent='單元 '+unit+'｜已上架 '+published+' / '+data.lessons.length+' 堂。點選任一課程即可讀取並編輯。';
+  feedback.className='hint';updateOverviewSelection();
+ }catch(e){
+  if(serial!==courseOverviewSerial)return;
+  feedback.textContent='課程狀態讀取失敗：'+e.message;
+  feedback.className='error';
+ }
+}
+async function loadCourseLesson(){
+ if(courseSaving)return;
+ const id=currentCourseLessonId();
+ if(courseHasUnsavedEdits()&&!confirm('確定重新讀取並放棄尚未儲存的修改？'))return;
+ const previouslyLoaded=courseEditorLoadedId===id;
+ const serial=++courseLoadSerial;
+ const btn=$('loadCourseLesson');
+ btn.disabled=true;
+ $('saveCourseLesson').disabled=true;
+ $('courseReadStatus').textContent='正在'+(previouslyLoaded?'重新':'自動')+'讀取 '+id+'…';
+ $('courseReadStatus').className='hint';
+ $('courseStatus').textContent='正在讀取 '+id+'…';$('courseStatus').className='hint';
+ try{
+  const response=await api('GET',{action:'course_lesson',id});
+  if(serial!==courseLoadSerial||id!==currentCourseLessonId())return;
+  const lesson=response.lesson||{};
+  if(lesson.id!==id)throw Error('收到的課程與選定課次不符');
+  $('courseTitle').value=lesson.title||'';
+  $('courseVideo').value=lesson.videoUrl||'';
+  $('courseDescription').value=lesson.description||'';
+  $('coursePublished').checked=lesson.published===true;
+  courseEditorLoadedId=id;
+  for(const field of courseEditableFields)$(field).disabled=false;
+  courseEditorSnapshot=JSON.stringify(getCourseDraft());
+  $('saveCourseLesson').disabled=false;
+  $('courseSelection').textContent='正在編輯：'+id+'｜'+(lesson.title||'未命名課程')+
+   (lesson.published?'（目前已上架）':'（目前尚未上架）');
+  $('courseReadStatus').textContent=(previouslyLoaded?'已重新讀取':'已自動讀取')+'：'+id+' ✓';
+  $('courseReadStatus').className='ok';
+  $('courseStatus').textContent='已讀取 '+id+'，確認後可編輯及儲存。';
+  $('courseStatus').className='ok';
+ }catch(e){
+  if(serial!==courseLoadSerial)return;
+  resetCourseEditor('讀取失敗：'+e.message);
+  $('courseReadStatus').textContent='讀取失敗，請按「重新讀取目前課程」';
+  $('courseReadStatus').className='error';
+  $('courseStatus').className='error';
+ }finally{if(serial===courseLoadSerial)btn.disabled=false}
+}
+$('loadCourseLesson').onclick=()=>{void loadCourseLesson()};
+$('saveCourseLesson').onclick=async()=>{
+ const btn=$('saveCourseLesson'),feedback=$('courseStatus'),id=currentCourseLessonId();
+ if(btn.disabled||courseSaving)return;
+ if(!courseEditorLoadedId||courseEditorLoadedId!==id){
+  feedback.textContent='請先讀取目前選定的課程，避免覆寫其他課次。';
+  feedback.className='error';btn.disabled=true;return;
+ }
+ const draft=getCourseDraft();
+ const before=JSON.parse(courseEditorSnapshot||'{}');
+ const action=draft.published?(!before.published?'上架':'儲存已上架的課程'):(before.published?'下架':'儲存未上架草稿');
+ if(!confirm('確認要'+action+'？\n'+id+'｜'+draft.title+
+  '\n'+(draft.published?'已購買該單元的學員將可以觀看。':'學員將無法播放此堂影片。')))return;
+ btn.disabled=true;courseSaving=true;
+ $('courseUnit').disabled=true;$('courseNumber').disabled=true;
+ // Freeze inputs so an in-flight response cannot overwrite new edits.
+ for(const field of courseEditableFields)$(field).disabled=true;
+ feedback.textContent='正在儲存 '+id+'…';feedback.className='hint';
+ try{
+  const result=await api('POST',null,{action:'save_course_lesson',lesson:draft});
+  if(result.lesson?.id!==id)throw Error('伺服器回傳的課程編號不符，請檢查');
+  // Show the normalized Mux prefix after saving a pasted Playback ID.
+  $('courseVideo').value=result.lesson.videoUrl||'';
+  $('courseTitle').value=result.lesson.title||'';
+  $('courseDescription').value=result.lesson.description||'';
+  $('coursePublished').checked=result.lesson.published===true;
+  courseEditorSnapshot=JSON.stringify(getCourseDraft());
+  $('courseSelection').textContent='正在編輯：'+id+'｜'+result.lesson.title+
+   (result.lesson.published?'（目前已上架）':'（目前尚未上架）');
+  feedback.textContent='已儲存：'+id+'｜'+result.lesson.title+
+   (result.lesson.published?'（已上架）':'（尚未上架）');
   feedback.className='ok';
- }catch(e){feedback.textContent='儲存失敗：'+e.message;feedback.className='error'}
- finally{btn.disabled=false}
+  await refreshCourseOverview();
+ }catch(e){
+  feedback.textContent='儲存失敗：'+e.message;feedback.className='error';
+ }finally{
+  courseSaving=false;
+  $('courseUnit').disabled=false;$('courseNumber').disabled=false;
+  for(const field of courseEditableFields)$(field).disabled=false;
+  btn.disabled=courseEditorLoadedId!==id;
+ }
 };
-$('courseUnit').addEventListener('change',()=>{populateCourseLessonSelect();$('courseStatus').textContent='已切換單元，請先讀取這堂課。';$('courseTitle').value='';$('courseVideo').value='';$('courseMaterials').value='';$('courseDescription').value='';$('coursePublished').checked=false});
-$('courseNumber').addEventListener('change',()=>{$('courseStatus').textContent='已切換課次，請先讀取這堂課。';$('courseTitle').value='';$('courseVideo').value='';$('courseMaterials').value='';$('courseDescription').value='';$('coursePublished').checked=false});
+$('courseUnit').addEventListener('change',()=>{courseSelectionChanged(true)});
+$('courseNumber').addEventListener('change',()=>{courseSelectionChanged(false)});
+$('refreshCourseOverview').onclick=()=>{void refreshCourseOverview()};
+resetCourseEditor('選擇課次後將自動讀取。');
 async function loadHistory(){
  const data=await api('GET',{action:'vouchers'});
  const div=$('history');div.replaceChildren();

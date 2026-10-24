@@ -17,6 +17,7 @@ on:
       - feature/course-content-mvp-20261022
       - feature/official-catalog-responsive-sales-20261023
       - feature/typography-standard-20261023
+      - feature/mux-payments-foundation-20261023
   pull_request:
     paths:
       - "lib/**"
@@ -55,9 +56,15 @@ jobs:
           node --check api/auth/logout.js
           node --check api/student/me.js
           node --check api/student/config.js
-          node --check api/student/unit.js
-          node --check api/student/lesson.js
           node --check lib/course-content.js
           node --check lib/course-store.js
           node --check lib/course-catalog.js
-          node --check api/student/progress.js
+          node --check lib/mux-signed-playback.js
+          node --check lib/checkout-pricing.js
+          node --check api/course.js
+          node --check lib/http/student-unit.js
+          node --check lib/http/student-lesson.js
+          node --check lib/http/student-progress.js
+          node --check lib/http/student-playback.js
+          node --check lib/http/checkout-quote.js
+          node --check lib/http/checkout-draft.js

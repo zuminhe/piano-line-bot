@@ -43,6 +43,7 @@ button:disabled{cursor:not-allowed;opacity:.65}
 .playlist a:focus-visible{outline:3px solid #80b6ed}
 .playlist .done{color:#29704e;font-size:13px}
 .complete-panel{border:1px solid #d9e6f0;border-radius:13px;padding:16px;margin-top:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.complete-panel[hidden]{display:none!important}
 .complete-panel button[aria-pressed=true]{background:#1e7054}
 .progress-count{font-size:14px;color:#456888;margin:10px 0}
 #courseSource{font-size:13px;color:#69829a}
@@ -85,10 +86,177 @@ button,.btn{font-size:18px;font-weight:600;line-height:1.4;padding:14px 19px;min
 @media(max-width:600px){header h1{font-size:34px}.lesson-view header h1{font-size:28px}.card{padding:21px}.card h2{font-size:25px}.lesson-view .card{padding:20px}button,.btn{font-size:17px;padding:12px 16px}.unit{padding:21px;min-height:143px}.unit strong{font-size:21px}.lesson{padding:18px}.lesson strong{font-size:19px}.lesson small{font-size:16px}.playlist a{font-size:16px}}
 @media(max-width:360px){header h1{font-size:31px}.lesson-view header h1{font-size:26px}.unit strong{font-size:20px}}
 
+.video mux-player{display:block;width:100%;height:100%;--controls-backdrop-color:rgba(11,34,53,.8)}
+#lessonVideo .video{min-height:180px}
+/* Staging student dashboard refinement: compact hero, readable units, clear actions. */
+header{padding:19px 20px 23px}
+header h1{font-size:clamp(30px,3.65vw,42px);margin:9px 0 4px;line-height:1.35}
+header p{margin:0;font-size:16px;line-height:1.7}
+.brand-row{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.header-logout{display:none;background:transparent;border:1px solid rgba(231,242,253,.5);color:#eef7ff;border-radius:8px;padding:7px 12px;min-height:36px;font-size:13px;font-weight:500;white-space:nowrap}
+.header-logout:hover{background:rgba(255,255,255,.12)}
+main{padding-top:14px}.card{margin:12px 0}
+#overview{padding:25px 29px 29px}
+.dashboard-intro{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:5px 20px}
+#overview .dashboard-intro h2{font-size:clamp(19px,2vw,23px);margin:0;font-weight:600}
+.intro-tip{font-size:15px;margin:0}
+.overview-heading{display:flex;justify-content:space-between;align-items:baseline;gap:8px 16px;margin-top:23px}
+#overview .overview-heading h2{font-size:clamp(24px,2.3vw,30px);margin:0}
+.unit-total{font-size:14px}
+.units{margin-top:15px;gap:13px}
+.unit{min-height:164px;padding:19px 22px;gap:6px;border:1px solid #cfdfef;background:#fcfdff;border-radius:13px;transition:background .18s,border-color .18s,box-shadow .18s,transform .18s}
+.unit:hover:not(:disabled){background:#f3f9ff;border-color:#86b2d7;box-shadow:0 8px 22px rgba(26,66,108,.11);transform:translateY(-2px)}
+.unit:focus-visible{outline:3px solid #80b6ed;outline-offset:3px}
+.unit:active:not(:disabled){transform:translateY(0)}
+.unit-head{width:100%;display:flex;justify-content:space-between;align-items:center}
+.unit .unit-index{font-size:13px;letter-spacing:.04em;color:#6585a3}
+.unit-symbol{font-size:19px;color:#396e99;font-weight:600;line-height:1}
+.unit strong{font-size:21px;line-height:1.5}
+.unit-count{font-size:14px;color:#617b93}
+.unit-action{font-size:15px;color:#205c8b;font-weight:600;margin-top:auto;padding-top:7px}
+.unit.locked{background:#f5f7fa;color:#3f546a;border-color:#e0e8f0;opacity:1;cursor:default}
+.unit.locked strong{color:#51667b}
+.unit.locked .unit-index,.unit.locked .unit-count{color:#62768b}
+.unit.locked .unit-symbol{font-size:15px;filter:grayscale(1);opacity:.7}
+.unit.locked .unit-action{color:#62768b;font-weight:500}
+.lesson-view header{padding:13px 20px}
+.lesson-view header h1{font-size:clamp(23px,2.5vw,31px)}
+#resumeLearning[hidden]{display:none}
+@media(max-width:767px){
+  .dashboard-intro{display:block}
+  .intro-tip{margin-top:3px}
+  .overview-heading{margin-top:18px}
+}
+@media(max-width:600px){
+  header{padding:14px 16px 18px}
+  header h1{font-size:clamp(28px,8vw,34px);margin:7px 0 3px}
+  header p{font-size:14px}
+  .brand-row .eyebrow{font-size:12px;line-height:1.5;letter-spacing:.04em}
+  .header-logout{font-size:12px;padding:6px 9px;min-height:33px}
+  #overview{padding:19px 18px}
+  #overview .dashboard-intro h2{font-size:20px}
+  .intro-tip{font-size:14px}
+  #overview .overview-heading h2{font-size:24px}
+  .unit-total{font-size:12px}
+  .units{gap:10px;margin-top:13px}
+  .unit{padding:17px 19px;min-height:149px;gap:6px}
+  .unit strong{font-size:20px}
+  .unit-action{font-size:14px}
+  .lesson-view header{padding:11px 16px}
+  .lesson-view header h1{font-size:26px}
+}
+@media(prefers-reduced-motion:reduce){.unit{transition:none}.unit:hover:not(:disabled){transform:none}}
+
+/* Lesson UX polish (staging only): clear progress action and compact mobile study layout. */
+#unitPanel #unitHeading{margin:13px 0 5px}
+#unitPanel #unitProgress{margin:5px 0 6px}
+#unitPanel .unit-help{margin:0 0 16px}
+#unitPanel .stack{gap:10px}
+.complete-panel{flex-wrap:wrap;min-width:0}
+.complete-panel #completeLesson{flex:0 1 auto;min-width:245px;max-width:100%;white-space:normal;line-height:1.5;word-break:keep-all;overflow-wrap:normal;text-align:center}
+.complete-panel #completionMessage{flex:1 1 180px;min-width:0;font-size:16px;line-height:1.7}
+#lessonDescription:empty,#lessonMessage:empty,#lessonMaterial:empty{display:none}
+#lessonHeading{margin-top:7px;margin-bottom:8px}
+#lessonDescription{margin:7px 0 12px}
+#courseSource{margin:6px 0}
+#lessonVideo .video{margin:15px 0}
+@media(max-width:767px){
+ #unitPanel{padding-top:20px}
+ #unitPanel #backUnits,#lessonPanel #backLessons{padding:9px 14px;min-height:43px;font-size:16px}
+ #unitPanel #unitHeading{margin:16px 0 4px}
+ #unitPanel #unitProgress{margin:4px 0 5px}
+ #unitPanel .unit-help{margin:0 0 13px;font-size:16px;line-height:1.65}
+ #unitPanel .stack{gap:9px}
+ #unitPanel .lesson{padding:14px 15px;gap:10px}
+ #unitPanel .lesson strong{line-height:1.5}
+ #unitPanel .lesson small{margin-top:4px;line-height:1.5}
+ #lessonPanel{padding-top:19px}
+ .learning-layout{margin-top:11px;gap:17px}
+ #lessonHeading{margin:5px 0 6px;line-height:1.4}
+ #lessonDescription{margin:6px 0 9px;line-height:1.7}
+ #lessonVideo .video{margin:13px 0}
+ .complete-panel{display:flex;flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:10px;margin-top:16px;padding:17px}
+ .complete-panel #completeLesson{display:flex;flex:0 0 auto;width:100%;min-width:0;max-width:none;min-height:54px;padding:12px 15px;font-size:17px;line-height:1.5;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+ .complete-panel #completionMessage{display:block;flex:0 0 auto;width:100%;min-width:0;font-size:15px;line-height:1.7}
+}
+@media(max-width:360px){
+ .complete-panel{padding:13px}
+ .complete-panel #completeLesson{font-size:16px;padding:11px}
+}
+
+.lesson-navigation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+.lesson-navigation:empty{display:none}
+.lesson-navigation .lesson-step{display:flex;flex-direction:column;gap:6px;min-width:0;padding:16px;border:1px solid #d6e2ee;border-radius:14px;color:#23486c;background:#f5f8fc;text-decoration:none;line-height:1.6}
+.lesson-step strong{font-size:17px}.lesson-step small{font-size:15px;overflow-wrap:anywhere}
+.lesson-step[aria-disabled="true"]{color:#64748b;background:#f7f8fa}
+@media(max-width:480px){.lesson-navigation{grid-template-columns:1fr}.lesson-navigation .lesson-step{padding:14px}}
+/* Actual completed-lesson progress, read from the authenticated progress API. */
+#unitPanel .unit-progress-bar{display:block;width:100%;height:11px;margin:0 0 17px;appearance:none;-webkit-appearance:none;border:0;border-radius:999px;overflow:hidden;background:#e6eef6}
+#unitPanel .unit-progress-bar[hidden]{display:none}
+#unitPanel .unit-progress-bar::-webkit-progress-bar{background:#e6eef6;border-radius:999px}
+#unitPanel .unit-progress-bar::-webkit-progress-value{background:#28745c;border-radius:999px;transition:width .18s ease}
+#unitPanel .unit-progress-bar::-moz-progress-bar{background:#28745c;border-radius:999px}
+@media(max-width:767px){#unitPanel .unit-progress-bar{height:10px;margin:3px 0 14px}}
+@media(prefers-reduced-motion:reduce){#unitPanel .unit-progress-bar::-webkit-progress-value{transition:none}}
+/* Unpublished lessons stay previewable but cannot be marked complete. */
+.complete-panel[hidden]{display:none!important}
+#lessonMessage.lesson-unpublished-notice{display:block;border:1px solid #d9e5f0;background:#f5f8fc;color:#365977;border-radius:12px;padding:15px 18px;margin:13px 0 15px;font-size:16px;line-height:1.7}
+.playlist .playlist-item{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;padding:10px 12px;min-height:52px}
+.playlist .playlist-lesson-name{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.playlist .playlist-unpublished-tag{flex:0 0 auto;border-radius:99px;background:#e9eef3;color:#526b81;font-size:12px;line-height:1.5;padding:2px 8px;white-space:nowrap}
+.playlist .playlist-unpublished{color:#53687d}
+.playlist .playlist-unpublished[aria-current=page]{color:#214c72}
+@media(max-width:600px){
+ #lessonMessage.lesson-unpublished-notice{font-size:16px;padding:13px 14px}
+ .playlist .playlist-item{gap:4px 7px;padding:10px 11px;min-height:48px}
+ .playlist .playlist-unpublished-tag{font-size:12px}
+}
+/* Central printable handout library */
+.resources-section{margin-top:26px;padding-top:22px;border-top:1px solid #e1ebf4}
+#overview .resources-section h3{font-size:20px;line-height:1.5;margin:0 0 12px;font-weight:600}
+.materials-entry{display:flex;align-items:center;gap:15px;border:1px solid #d6e5f1;background:#f8fbff;color:#193e60;border-radius:14px;padding:15px 18px;margin:0;text-decoration:none;min-height:78px}
+.materials-entry:hover{background:#edf5fe;border-color:#97b9d6}
+.materials-entry:focus-visible{outline:3px solid #80b6ed;outline-offset:3px}
+.materials-entry-icon{display:inline-flex;align-items:center;justify-content:center;font-size:25px;background:#e4effa;color:#285a83;border-radius:11px;width:48px;height:48px;flex:0 0 48px}
+.materials-entry-copy{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.materials-entry-copy strong{font-size:20px;font-weight:600;line-height:1.45}
+.materials-entry-copy small{font-size:15px;color:#58718b;line-height:1.6}
+.materials-entry-arrow{font-size:24px;font-weight:600;color:#2d658f;flex:0 0 auto}
+#materialsPanel h2{margin-top:15px;margin-bottom:7px}
+#materialsPanel .materials-intro{margin:0 0 17px;line-height:1.7;font-size:17px}
+.materials-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.material-item{padding:18px 20px;border:1px solid #cbdff0;background:#fbfdff;border-radius:14px;min-width:0;min-height:79px;display:flex;flex-direction:column;justify-content:center}
+.material-item-head{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+.material-item strong{font-size:19px;line-height:1.5}
+.material-locked{background:#f5f7fa;border-color:#e0e8f0}
+.material-status{display:inline-block;border-radius:99px;padding:4px 10px;background:#e7f2fd;color:#2b5e86;font-size:13px;font-weight:600;white-space:nowrap}
+.material-status-locked{background:#e9eef3;color:#5d7186}
+.material-status-ready{background:#e6f4eb;color:#256b4f}
+.material-download{margin-top:13px;font-size:16px}
+@media(max-width:767px){
+ .materials-list{grid-template-columns:1fr;gap:10px}
+ .resources-section{margin-top:21px;padding-top:18px}
+ #overview .resources-section h3{font-size:19px;margin-bottom:10px}
+ .materials-entry{padding:13px 15px;margin:0;gap:12px;min-height:72px}
+ .materials-entry-icon{width:44px;height:44px;flex-basis:44px}
+ .materials-entry-copy strong{font-size:19px}
+ .materials-entry-copy small{font-size:14px}
+ .materials-entry-arrow{font-size:21px}
+ .material-item{padding:16px 17px;min-height:73px}
+ #materialsPanel{padding-top:20px}
+ #materialsPanel h2{margin-top:13px;margin-bottom:6px}
+ #materialsPanel .materials-intro{font-size:16px;line-height:1.65;margin-bottom:16px}
+}
+@media(max-width:360px){
+ .materials-entry{gap:9px;padding:12px}
+ .materials-entry-icon{width:39px;height:39px;flex-basis:39px;font-size:22px}
+ .materials-entry-copy strong{font-size:18px}
+ .materials-entry-copy small{font-size:13px}
+}
 </style>
 </head>
 <body>
-<header><div><div class="eyebrow white">教會鋼琴 PIANO LESSONS｜祖民老師</div><h1>終極和弦伴奏公式</h1><p class="white">每一步理解，都能回到琴鍵上。</p></div></header>
+<header><div><div class="brand-row"><div class="eyebrow white">教會鋼琴 PIANO LESSONS｜祖民老師</div><button class="header-logout" id="logout" type="button">登出</button></div><h1>終極和弦伴奏公式</h1><p class="white">每一步理解，都能回到琴鍵上。</p></div></header>
 <main>
 <section class="card" id="loading"><h2>正在確認登入狀態…</h2><p class="muted">正在安全讀取你的 LINE 身分與課程權限。</p></section>
 <section class="card" id="loginPanel">
@@ -97,17 +265,32 @@ button,.btn{font-size:18px;font-weight:600;line-height:1.4;padding:14px 19px;min
  <p class="muted helper">如果你剛購買課程，請先到 LINE 官方帳號輸入課程驗證碼。這裡不會要求你的 LINE 密碼。</p>
 </section>
 <div id="dashboard">
-  <section class="card"><h2 id="welcome">歡迎回來</h2>
-    <p class="muted">只有已購買的單元可以進入課程列表；每堂影片上架後會出現在這裡。</p>
-    <button class="ghost" id="logout">登出學員中心</button>
+  <section class="card" id="overview">
+    <div class="dashboard-intro"><h2 id="welcome">歡迎回來</h2><p class="intro-tip muted">選擇已開通的單元，開始今天的鋼琴練習。</p></div>
+    <!-- Reserved for verified lesson-progress-based resume learning, without fabricated progress. -->
+    <div id="resumeLearning" hidden></div>
+    <div class="overview-heading"><h2>我的課程</h2><span class="muted unit-total">共 4 個單元 · 23 堂課</span></div>
+    <div class="units" id="units"></div>
+    <section class="resources-section" aria-labelledby="resourcesHeading">
+      <h3 id="resourcesHeading">課程講義</h3>
+      <a href="/student#materials" class="materials-entry" aria-label="前往我的講義，查看課程教材及下載狀態">
+        <span class="materials-entry-icon" aria-hidden="true">▤</span>
+        <span class="materials-entry-copy"><strong>我的講義</strong><small>講義集中存放・下載列印後，帶到鋼琴前練習</small></span>
+        <span class="materials-entry-arrow" aria-hidden="true">→</span>
+      </a>
+    </section>
   </section>
-  <section class="card" id="overview"><h2>我的課程</h2><p class="muted">選擇已開通的單元，進入正式課程列表（目前共 23 堂）。</p><div class="units" id="units"></div>
-    <p class="muted helper">影片由 YouTube 或 Vimeo 播放；學員中心負責確認單元購買資格。</p>
+  <section class="card" id="materialsPanel">
+    <button class="ghost" type="button" id="backMaterials">← 返回我的課程</button>
+    <h2>我的講義</h2>
+    <p class="muted materials-intro">講義完成後，會在已開通的單元提供 PDF 下載，方便自行列印。</p>
+    <div id="materialsList" class="materials-list" aria-live="polite">正在確認講義下載資格…</div>
   </section>
   <section class="card" id="unitPanel"><button class="ghost" id="backUnits">← 返回四個單元</button>
-    <h2 id="unitHeading" style="margin-top:20px"></h2>
+    <h2 id="unitHeading"></h2>
     <p id="unitProgress" class="progress-count" aria-live="polite"></p>
-    <p class="muted">依照正式課程目錄排列。已錄製且上架的內容可播放，其他課程會標示尚未上架。</p>
+    <progress id="unitProgressBar" class="unit-progress-bar" value="0" max="6" aria-label="本單元課程完成進度" hidden></progress>
+    <p class="muted unit-help">選擇課程，開始學習。尚未上架的課程會另行標示。</p>
     <div id="lessonList" class="stack"></div>
   </section>
   <section class="card" id="lessonPanel"><button class="ghost" id="backLessons">← 返回課程列表</button>
@@ -118,11 +301,11 @@ button,.btn{font-size:18px;font-weight:600;line-height:1.4;padding:14px 19px;min
         <p id="lessonDescription" class="muted"></p>
         <div id="lessonVideo"></div>
         <p id="lessonMessage" class="muted"></p>
-        <div id="lessonMaterial"></div>
-        <div class="complete-panel">
-          <button type="button" id="completeLesson" aria-pressed="false" disabled>完成這堂課</button>
-          <span id="completionMessage" class="muted">看完並練習後，可以手動標記已完成。</span>
+        <div class="complete-panel" id="completionPanel" hidden>
+          <button type="button" id="completeLesson" aria-pressed="false" disabled>已完成這堂課</button>
+          <span id="completionMessage" class="muted" role="status" aria-live="polite">看完並練習後，可以手動標記已完成。</span>
         </div>
+        <nav id="lessonNavigation" class="lesson-navigation" aria-label="上一堂與下一堂"></nav>
         <p class="helper muted">學習進度會記錄在你的 LINE 學員身分下；不同裝置登入同一帳號即可接續。</p>
       </div>
       <aside class="learning-side" aria-label="同單元課程導覽">
@@ -138,6 +321,8 @@ button,.btn{font-size:18px;font-weight:600;line-height:1.4;padding:14px 19px;min
 <p id="notification" role="status" aria-live="polite"></p>
 </main>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<!-- Mux Player only receives a short-lived server-issued token after LINE membership authorization. -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/@mux/mux-player@3"></script>
 <script>
 const $=x=>document.getElementById(x);
 const names=['基礎樂理','認識和弦','和弦變化','和弦應用'];
@@ -155,16 +340,52 @@ function renderUnits(access){
  for(let i=1;i<=4;i++){
   const allowed=access.units.includes(i),card=document.createElement('button');
   card.type='button';card.className='unit'+(allowed?'':' locked');card.disabled=!allowed;
-  const number=document.createElement('span');number.className='unit-index';number.textContent='UNIT '+String(i).padStart(2,'0');card.appendChild(number);
+  card.setAttribute('aria-label','單元 '+i+' '+names[i-1]+'，'+lessonCounts[i-1]+' 堂，'+(allowed?'已開通，進入課程':'尚未開通'));
+  const head=document.createElement('span');head.className='unit-head';
+  const number=document.createElement('span');number.className='unit-index';number.textContent='UNIT '+String(i).padStart(2,'0');head.appendChild(number);
+  const symbol=document.createElement('span');symbol.className='unit-symbol';symbol.setAttribute('aria-hidden','true');symbol.textContent=allowed?'↗':'🔒';head.appendChild(symbol);card.appendChild(head);
   const title=document.createElement('strong');title.textContent=names[i-1];card.appendChild(title);
-  card.appendChild(tag((allowed?'已開通・進入課程':'尚未購買')+'｜'+lessonCounts[i-1]+' 堂',!allowed));
+  const count=document.createElement('span');count.className='unit-count';if(allowed)count.id='overviewProgress'+i;count.textContent=lessonCounts[i-1]+' 堂課';card.appendChild(count);
+  const action=document.createElement('span');action.className='unit-action';action.textContent=allowed?'進入課程 →':'尚未開通';card.appendChild(action);
   if(allowed)card.onclick=()=>{location.hash='unit/'+i};
   parent.appendChild(card);
  }
  $('coaching').textContent=access.coaching?'陪練訂閱有效（服務功能尚在規劃中）':'尚未訂閱陪練服務。';
 }
+function renderLessonNavigation(lessons,currentId){
+ const target=$('lessonNavigation');target.replaceChildren();
+ const index=lessons.findIndex(lesson=>lesson.id===currentId);
+ if(index<0)return;
+ for(const [offset,label,boundary] of [[-1,'← 上一堂','這是本單元第一堂'],[1,'下一堂 →','這是本單元最後一堂']]){
+  const lesson=lessons[index+offset];
+  const step=document.createElement(lesson?'a':'div');step.className='lesson-step';
+  const heading=document.createElement('strong');heading.textContent=label;step.appendChild(heading);
+  const detail=document.createElement('small');
+  if(lesson){
+   step.href='/student#lesson/'+lesson.id;
+   detail.textContent=lesson.sourceId+'｜'+lesson.title+(lesson.published?'':'（尚未上架）');
+  }else{step.setAttribute('aria-disabled','true');detail.textContent=boundary}
+  step.appendChild(detail);target.appendChild(step);
+ }
+}
+async function refreshOverviewProgress(){
+ await Promise.all(myAccess.units.map(async unit=>{
+  const target=$('overviewProgress'+unit);
+  if(!target)return;
+  try{
+   const data=await authorizedJson('/api/student/progress?unit='+unit);
+   const completed=new Set((data.completed||[]).filter(id=>
+    typeof id==='string'&&new RegExp('^u'+unit+'-l0[1-9]$').test(id)&&Number(id.slice(-2))<=lessonCounts[unit-1]
+   ));
+   if(!target.isConnected)return;
+   target.textContent='已完成 '+completed.size+' / '+lessonCounts[unit-1]+' 堂';
+  }catch{
+   if(target.isConnected)target.textContent=lessonCounts[unit-1]+' 堂課・進度暫時無法讀取';
+  }
+ }));
+}
 function panel(which){
- for(const id of ['overview','unitPanel','lessonPanel'])$(id).style.display=id===which?'block':'none';
+ for(const id of ['overview','unitPanel','lessonPanel','materialsPanel'])$(id).style.display=id===which?'block':'none';
  $('coachingPanel').style.display=which==='overview'?'block':'none';
 }
 async function studentMe(){
@@ -201,6 +422,35 @@ function protectedError(err,target){
  target.replaceChildren();
  const p=document.createElement('p');p.className='muted';p.textContent=err.message;target.appendChild(p);
 }
+async function showMaterials(serial){
+ const target=$('materialsList');target.textContent='正在確認講義下載資格…';
+ try{
+  const data=await authorizedJson('/api/student/materials');
+  if(serial!==routeSerial)return;
+  if(!Array.isArray(data.materials)||data.materials.length!==4)throw Error('講義資料格式不正確');
+  target.replaceChildren();
+  for(const item of data.materials){
+   if(!Number.isInteger(item.unit)||item.unit<1||item.unit>4)continue;
+   const tile=document.createElement('article');
+   tile.className='material-item'+(item.entitled?'':' material-locked');
+   const head=document.createElement('div');head.className='material-item-head';
+   const title=document.createElement('strong');
+   title.textContent='單元 '+item.unit+'｜'+names[item.unit-1];
+   head.appendChild(title);
+   const badge=document.createElement('span');badge.className='material-status';
+   if(!item.entitled){badge.textContent='尚未開通';badge.classList.add('material-status-locked')}
+   else if(!item.published){badge.textContent='講義準備中'}
+   else{badge.textContent='已提供';badge.classList.add('material-status-ready')}
+   head.appendChild(badge);tile.appendChild(head);
+   if(item.entitled&&item.published){
+    const link=document.createElement('a');link.className='btn material-download';
+    link.textContent='下載 PDF ↓';link.href='/api/student/material-download?unit='+item.unit;
+    tile.appendChild(link);
+   }
+   target.appendChild(tile);
+  }
+ }catch(e){if(serial===routeSerial)protectedError(e,target)}
+}
 async function renderRoute(){
  if(!myAccess)return;
  const serial=++routeSerial;
@@ -208,13 +458,20 @@ async function renderRoute(){
  try{hash=decodeURIComponent(location.hash.slice(1))}catch{hash='/'};
  // Remove the iframe on navigation: a hidden iframe may continue playing audio.
  $('lessonVideo').replaceChildren();
+ $('lessonNavigation').replaceChildren();
+ $('completionPanel').hidden=true;
+ $('lessonMessage').classList.remove('lesson-unpublished-notice');
  const unitMatch=/^unit\/([1-4])$/.exec(hash);
  const lessonMatch=/^lesson\/(u[1-4]-l0[1-8])$/.exec(hash);
  document.body.classList.toggle('lesson-view',Boolean(lessonMatch));
- if(unitMatch){
+ if(hash==='materials'){
+  panel('materialsPanel');window.scrollTo(0,0);
+  await showMaterials(serial);
+ }else if(unitMatch){
   const unit=Number(unitMatch[1]);panel('unitPanel');window.scrollTo(0,0);
   $('unitHeading').textContent='單元 '+unit+'｜'+names[unit-1];
   $('unitProgress').textContent='這個單元共有 '+lessonCounts[unit-1]+' 堂課';
+  $('unitProgressBar').hidden=true;
   const target=$('lessonList');target.textContent='正在讀取課程列表…';
   try{
    const data=await authorizedJson('/api/student/unit?unit='+unit);
@@ -233,7 +490,8 @@ async function renderRoute(){
    try{
     const progress=await authorizedJson('/api/student/progress?unit='+unit);
     if(serial!==routeSerial)return;
-    const completed=new Set(progress.completed||[]);
+    const validIds=new Set(data.lessons.map(lesson=>lesson.id));
+    const completed=new Set((progress.completed||[]).filter(id=>validIds.has(id)));
     for(const row of target.querySelectorAll('a.lesson')){
       const id=row.getAttribute('href').split('/').pop();
       if(completed.has(id)){
@@ -241,48 +499,84 @@ async function renderRoute(){
       }
     }
     $('unitProgress').textContent='已完成 '+completed.size+' / '+data.lessons.length+' 堂（由學員手動標記）';
-   }catch(e){if(serial===routeSerial)$('unitProgress').textContent='本單元共 '+data.lessons.length+' 堂；暫時無法讀取完成進度'}
+    const progressBar=$('unitProgressBar');
+    progressBar.max=data.lessons.length||1;
+    progressBar.value=completed.size;
+    progressBar.setAttribute('aria-valuetext','已完成 '+completed.size+' / '+data.lessons.length+' 堂');
+    progressBar.hidden=false;
+   }catch(e){if(serial===routeSerial){
+    $('unitProgressBar').hidden=true;
+    $('unitProgress').textContent='本單元共 '+data.lessons.length+' 堂；暫時無法讀取完成進度';
+   }}
   }catch(e){if(serial===routeSerial)protectedError(e,target)}
  }else if(lessonMatch){
   const id=lessonMatch[1];panel('lessonPanel');window.scrollTo(0,0);
   $('backLessons').onclick=()=>{location.hash='unit/'+id[1]};
   $('courseSource').textContent='';
   const completeButton=$('completeLesson');completeButton.disabled=true;completeButton.setAttribute('aria-pressed','false');
-  completeButton.textContent='完成這堂課';$('completionMessage').textContent='觀看並練習後再手動標記完成。';
+  completeButton.textContent='已完成這堂課';$('completionMessage').textContent='觀看並練習後再手動標記完成。';
   $('playlist').replaceChildren();$('sideProgress').textContent='正在讀取課程目錄…';
   $('lessonHeading').textContent='正在讀取課程…';$('lessonDescription').textContent='';
-  $('lessonVideo').replaceChildren();$('lessonMessage').textContent='';$('lessonMaterial').replaceChildren();
+  $('lessonVideo').replaceChildren();$('lessonMessage').textContent='';
   try{
    const data=await authorizedJson('/api/student/lesson?id='+encodeURIComponent(id));
    if(serial!==routeSerial)return;
-   const item=data.lesson;$('lessonHeading').textContent=item.title;
+   const item=data.lesson;let lessonPlayable=false;$('lessonHeading').textContent=item.title;
    $('courseSource').textContent='單元 '+item.unit+'｜'+item.sourceId;
    $('lessonDescription').textContent=item.description||'';
-   if(item.published&&item.embedUrl){
-    completeButton.disabled=false;
+   // Don't repeat the generic placeholder description above the unpublished notice.
+   if(!item.published&&item.description?.trim()==='正式影片尚未上架。')$('lessonDescription').textContent='';
+   if(item.published&&(item.embedUrl||item.provider==='mux')){
     const video=document.createElement('div');video.className='video';
-    const frame=document.createElement('iframe');
-    frame.src=item.embedUrl;frame.title='課程影片：'+item.title;
-    frame.loading='lazy';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;
-    frame.referrerPolicy='strict-origin-when-cross-origin';video.appendChild(frame);$('lessonVideo').appendChild(video);
-    if(item.materialsUrl){
-     const a=document.createElement('a');a.className='btn ghost';a.href=item.materialsUrl;
-     a.target='_blank';a.rel='noopener noreferrer';a.textContent='開啟課程講義 ↗';$('lessonMaterial').appendChild(a);
+    if(item.provider==='mux'){
+     $('lessonMessage').textContent='正在核對播放權限並取得限時播放憑證…';
+     try{
+      const playback=await authorizedJson('/api/student/playback?id='+encodeURIComponent(id));
+      if(serial!==routeSerial)return;
+      if(playback.provider!=='mux'||!/^[A-Za-z0-9]{10,128}$/.test(playback.playbackId)||
+        !playback.tokens||typeof playback.tokens.playback!=='string')throw Error('播放憑證資料不完整');
+      const player=document.createElement('mux-player');
+      player.setAttribute('playback-id',playback.playbackId);
+      player.setAttribute('playback-token',playback.tokens.playback);
+      player.setAttribute('thumbnail-token',playback.tokens.thumbnail);
+      player.setAttribute('storyboard-token',playback.tokens.storyboard);
+      player.setAttribute('stream-type','on-demand');
+      player.setAttribute('preload','metadata');
+      player.setAttribute('playsinline','');
+      player.setAttribute('disable-cookies','');
+      player.setAttribute('title','課程影片：'+item.title);
+      video.appendChild(player);$('lessonVideo').appendChild(video);
+      lessonPlayable=true;
+      $('lessonMessage').textContent='';
+     }catch(e){
+      if(serial!==routeSerial)return;
+      $('lessonMessage').textContent='Mux 影片尚未可播放：'+e.message+'。請先檢查是否已設定 Mux 簽署密鑰。';
+      completeButton.disabled=true;
+     }
+    }else{
+     const frame=document.createElement('iframe');
+     frame.src=item.embedUrl;frame.title='課程影片：'+item.title;
+     frame.loading='lazy';frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;
+     frame.referrerPolicy='strict-origin-when-cross-origin';video.appendChild(frame);$('lessonVideo').appendChild(video);
+     lessonPlayable=true;
     }
    }else{
-    $('lessonMessage').textContent='這堂課目前尚未上架影片，老師新增內容後就能從這裡觀看。';
+    $('lessonMessage').classList.add('lesson-unpublished-notice');
+    $('lessonMessage').textContent='尚未上架｜老師上架影片後，就能從這裡開始學習。';
    }
+   // No misleading completion action for an unreleased or unplayable video.
+   $('completionPanel').hidden=!lessonPlayable;
    try{
-    const [unitData,progress]=await Promise.all([
-     authorizedJson('/api/student/unit?unit='+item.unit),
-     authorizedJson('/api/student/progress?unit='+item.unit)
-    ]);
+    const unitData=await authorizedJson('/api/student/unit?unit='+item.unit);
+    if(serial!==routeSerial)return;
+    renderLessonNavigation(unitData.lessons,id);
+    const progress=await authorizedJson('/api/student/progress?unit='+item.unit);
     if(serial!==routeSerial)return;
     const done=new Set(progress.completed||[]);
     function applyCompletion(){
      const yes=done.has(id);
      completeButton.setAttribute('aria-pressed',String(yes));
-     completeButton.textContent=yes?'✓ 已完成・取消標記':'標記我已完成這堂課';
+     completeButton.textContent=yes?'✓ 已完成・取消標記':'已完成這堂課';
      $('completionMessage').textContent=yes?'你已標記完成，可以繼續複習。':'練習後點擊記錄完成進度。';
      $('sideProgress').textContent='已完成 '+done.size+' / '+unitData.lessons.length+' 堂';
     }
@@ -290,7 +584,17 @@ async function renderRoute(){
     for(const lesson of unitData.lessons){
      const a=document.createElement('a');
      a.href='/student#lesson/'+lesson.id;
-     a.textContent=lesson.sourceId+'　'+lesson.title;
+     a.className='playlist-item'+(lesson.published?'':' playlist-unpublished');
+     const name=document.createElement('span');
+     name.className='playlist-lesson-name';
+     name.textContent=lesson.sourceId+'　'+lesson.title;
+     a.appendChild(name);
+     if(!lesson.published){
+      const status=document.createElement('span');
+      status.className='playlist-unpublished-tag';
+      status.textContent='尚未上架';
+      a.appendChild(status);
+     }
      if(lesson.id===id)a.setAttribute('aria-current','page');
      if(done.has(lesson.id)){
       const span=document.createElement('span');span.textContent=' ✓';span.className='done';a.appendChild(span);
@@ -298,9 +602,11 @@ async function renderRoute(){
      playlist.appendChild(a);
     }
     applyCompletion();
+    completeButton.disabled=!lessonPlayable;
     completeButton.onclick=async()=>{
      if(completeButton.disabled||!item.published)return;
      completeButton.disabled=true;
+     completeButton.textContent='正在儲存…';
      const next=!done.has(id);
      try{
       const r=await fetch('/api/student/progress',{method:'POST',
@@ -308,6 +614,8 @@ async function renderRoute(){
        credentials:'same-origin',body:JSON.stringify({id,completed:next})
       });
       const body=await r.json().catch(()=>({}));
+      // Ignore a previous lesson's late response after navigating away.
+      if(serial!==routeSerial)return;
       if(!r.ok)throw Error(body.error||'進度暫時無法儲存');
       if(next)done.add(id);else done.delete(id);
       for(const link of playlist.querySelectorAll('a')){
@@ -318,13 +626,21 @@ async function renderRoute(){
        }
       }
       applyCompletion();
-     }catch(e){$('completionMessage').textContent='儲存失敗：'+e.message}
-     finally{completeButton.disabled=!item.published}
+     }catch(e){
+      if(serial!==routeSerial)return;
+      applyCompletion();
+      $('completionMessage').textContent='儲存失敗，進度未變更：'+e.message;
+     }finally{if(serial===routeSerial)completeButton.disabled=!lessonPlayable}
     };
-   }catch(e){if(serial===routeSerial){$('sideProgress').textContent='課程導覽暫時無法讀取';$('completionMessage').textContent='學習進度目前無法同步，影片仍可觀看';}}
+   }catch(e){if(serial===routeSerial){
+    completeButton.disabled=true;
+    $('sideProgress').textContent='課程導覽暫時無法讀取';
+    $('completionMessage').textContent='學習進度目前無法同步，請稍後重新開啟課程。影片仍可觀看。';
+   }}
   }catch(e){if(serial===routeSerial){$('lessonHeading').textContent='無法開啟課程';$('lessonMessage').textContent=e.message}}
  }else{
   panel('overview');
+  void refreshOverviewProgress();
  }
 }
 async function boot(){
@@ -333,10 +649,11 @@ async function boot(){
   if(!data){await initLiff();data=await studentMe()}
   if(!data){show('loginPanel');return}
   $('welcome').textContent='歡迎回來'+(data.name?'，'+data.name:'')+'！';
-  myAccess=data.access;renderUnits(myAccess);show('dashboard');await renderRoute();
+  myAccess=data.access;renderUnits(myAccess);$('logout').style.display='inline-flex';show('dashboard');await renderRoute();
  }catch(e){$('errorText').textContent=e.message;show('errorPanel')}
 }
 $('backUnits').onclick=()=>{location.hash='/'};
+$('backMaterials').onclick=()=>{location.hash='/'};
 $('retry').onclick=()=>location.reload();
 $('logout').onclick=async()=>{
  try{

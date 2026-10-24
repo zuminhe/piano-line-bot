@@ -39,5 +39,5 @@ test('student layout has mobile and tablet/desktop breakpoints and progress endp
  assert.match(html,/learning-layout/);
  assert.match(html,/\/api\/student\/progress/);
  const routes=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8')).rewrites;
- assert.ok(routes.some(x=>x.source==='/api/student/progress'&&x.destination==='/api/student/progress.js'));
+ assert.ok(routes.some(x=>x.source==='/api/student/progress'&&x.destination==='/api/course.js?operation=progress'));
 });
