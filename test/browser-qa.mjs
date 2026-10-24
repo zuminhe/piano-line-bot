@@ -88,7 +88,7 @@ async function contextFor(width,height){
  await context.route('https://**/*',route=>route.abort());
  return context;
 }
-async function wait(page,selector){await page.locator(selector).waitFor({state:'visible',timeout:15000})}
+async function wait(page,selector){await page.locator(selector).first().waitFor({state:'visible',timeout:15000})}
 try{
  for(const [device,width,height] of [['phone',375,812],['tablet',820,1180],['desktop',1440,900]]){
   const context=await contextFor(width,height),page=await context.newPage();
