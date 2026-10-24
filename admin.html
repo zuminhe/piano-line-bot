@@ -315,7 +315,7 @@ function currentCourseLessonId(){
  return 'u'+$('courseUnit').value+'-l'+String($('courseNumber').value).padStart(2,'0');
 }
 let selectedCourseId=currentCourseLessonId();
-let courseEditorLoadedId=null,courseEditorSnapshot=null,courseLoadSerial=0,courseOverviewSerial=0;
+let courseEditorLoadedId=null,courseEditorSnapshot=null,courseLoadSerial=0,courseOverviewSerial=0,courseSaving=false;
 const courseEditableFields=['courseTitle','courseVideo','courseDescription','coursePublished'];
 function normalizeCourseVideo(raw){
  const value=String(raw||'').trim();
@@ -333,8 +333,11 @@ function getCourseDraft(){
  };
 }
 function courseHasUnsavedEdits(){
- return courseEditorLoadedId!==null&&courseEditorSnapshot!==null &&
-  JSON.stringify(getCourseDraft())!==courseEditorSnapshot;
+ if(courseEditorLoadedId===null||courseEditorSnapshot===null)return false;
+ // A changed selector alone is not an unsaved edit to the *loaded* lesson.
+ const draft=getCourseDraft();
+ draft.id=courseEditorLoadedId;
+ return JSON.stringify(draft)!==courseEditorSnapshot;
 }
 function resetCourseEditor(message){
  courseLoadSerial++;
@@ -365,6 +368,7 @@ function updateOverviewSelection(){
  }
 }
 function courseSelectionChanged(unitChanged=false){
+ if(courseSaving){restoreCourseSelection();return false}
  if(!courseChangeAllowed()){restoreCourseSelection();return false}
  if(unitChanged){populateCourseLessonSelect();$('courseNumber').value='1'}
  selectedCourseId=currentCourseLessonId();
@@ -403,6 +407,7 @@ async function refreshCourseOverview(){
    if(lesson.published)published++;
    btn.appendChild(badge);
    btn.onclick=async()=>{
+    if(courseSaving)return;
     if(selectedCourseId!==lesson.id){
      if(!courseChangeAllowed())return;
      $('courseNumber').value=String(Number(lesson.id.slice(-2)));
@@ -456,7 +461,7 @@ async function loadCourseLesson(){
 $('loadCourseLesson').onclick=()=>{void loadCourseLesson()};
 $('saveCourseLesson').onclick=async()=>{
  const btn=$('saveCourseLesson'),feedback=$('courseStatus'),id=currentCourseLessonId();
- if(btn.disabled)return;
+ if(btn.disabled||courseSaving)return;
  if(!courseEditorLoadedId||courseEditorLoadedId!==id){
   feedback.textContent='請先讀取目前選定的課程，避免覆寫其他課次。';
   feedback.className='error';btn.disabled=true;return;
@@ -466,7 +471,7 @@ $('saveCourseLesson').onclick=async()=>{
  const action=draft.published?(!before.published?'上架':'儲存已上架的課程'):(before.published?'下架':'儲存未上架草稿');
  if(!confirm('確認要'+action+'？\n'+id+'｜'+draft.title+
   '\n'+(draft.published?'已購買該單元的學員將可以觀看。':'學員將無法播放此堂影片。')))return;
- btn.disabled=true;
+ btn.disabled=true;courseSaving=true;
  $('courseUnit').disabled=true;$('courseNumber').disabled=true;
  feedback.textContent='正在儲存 '+id+'…';feedback.className='hint';
  try{
@@ -487,6 +492,7 @@ $('saveCourseLesson').onclick=async()=>{
  }catch(e){
   feedback.textContent='儲存失敗：'+e.message;feedback.className='error';
  }finally{
+  courseSaving=false;
   $('courseUnit').disabled=false;$('courseNumber').disabled=false;
   btn.disabled=courseEditorLoadedId!==id;
  }
