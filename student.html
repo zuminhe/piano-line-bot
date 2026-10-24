@@ -613,6 +613,8 @@ async function renderRoute(){
        credentials:'same-origin',body:JSON.stringify({id,completed:next})
       });
       const body=await r.json().catch(()=>({}));
+      // Ignore a previous lesson's late response after navigating away.
+      if(serial!==routeSerial)return;
       if(!r.ok)throw Error(body.error||'進度暫時無法儲存');
       if(next)done.add(id);else done.delete(id);
       for(const link of playlist.querySelectorAll('a')){
@@ -624,9 +626,10 @@ async function renderRoute(){
       }
       applyCompletion();
      }catch(e){
+      if(serial!==routeSerial)return;
       applyCompletion();
       $('completionMessage').textContent='儲存失敗，進度未變更：'+e.message;
-     }finally{completeButton.disabled=!lessonPlayable}
+     }finally{if(serial===routeSerial)completeButton.disabled=!lessonPlayable}
     };
    }catch(e){if(serial===routeSerial){
     completeButton.disabled=true;
