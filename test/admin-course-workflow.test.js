@@ -24,7 +24,7 @@ test('admin unit listing is authenticated and does not return playable video URL
  assert.doesNotMatch(unitHandler,/videoUrl|playbackId|materialsUrl|secret|token/i);
 });
 
-test('course editor requires explicit load and protects against edits to wrong lesson',()=>{
+test('course editor requires a successful load and protects against edits to wrong lesson',()=>{
  assert.match(adminHtml,/id="saveCourseLesson" type="button" disabled/);
  assert.match(adminHtml,/courseEditorLoadedId!==id/);
  assert.match(adminHtml,/id!==currentCourseLessonId\(\)/);
@@ -48,4 +48,14 @@ test('course management link is first admin shortcut, other management preserved
  assert.match(adminHtml,/href="#memberAdmin">學員權限管理/);
  assert.match(adminHtml,/backup_personal_menu/);
  assert.match(adminHtml,/provision_test_menu/);
+});
+
+test('dropdown selection automatically loads the chosen lesson and visibly confirms reloads',()=>{
+ assert.match(adminHtml,/id="loadCourseLesson"[^>]*>重新讀取目前課程<\/button>/);
+ assert.match(adminHtml,/id="courseReadStatus" class="hint" role="status" aria-live="polite"/);
+ assert.match(adminHtml,/function courseSelectionChanged\(unitChanged=false\)/);
+ assert.match(adminHtml,/if\(unitChanged\)void refreshCourseOverview\(\);\s*void loadCourseLesson\(\);/);
+ assert.match(adminHtml,/\$\('courseNumber'\)\.addEventListener\('change',\(\)=>\{courseSelectionChanged\(false\)\}\)/);
+ assert.match(adminHtml,/已重新讀取/);
+ assert.match(adminHtml,/if\(serial===courseLoadSerial\)btn.disabled=false/);
 });
