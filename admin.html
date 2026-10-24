@@ -140,7 +140,7 @@ async function api(method,params,body) {
   return data;
 }
 function element(tag,text,parent) {const e=document.createElement(tag);if(text!==undefined)e.textContent=String(text);parent.appendChild(e);return e}
-async function run(fn){try{await fn();status('操作完成')}catch(e){status(e.message,true)}}
+async function run(fn){try{const result=await fn();if(result!==false)status('操作完成')}catch(e){status(e.message,true)}}
 $('loginButton').onclick=()=>run(async()=>{
  secret=$('secret').value;$('secret').value='';
  const data=await api('GET');
@@ -157,10 +157,15 @@ function inputs() {
 }
 function userId(){return $('userId').value.trim()}
 $('issue').onclick=()=>run(async()=>{
- if(!confirm('你已在 Portaly 核對完成付款，確定建立一次性驗證碼？'))return;
- const obj=await api('POST',null,{action:'issue_code',...inputs()});
- $('voucher').textContent='驗證碼（只顯示本次）：'+obj.code+'\n有效至：'+obj.expiresAt+'\n請私下交給學員，切勿公開。';
- await loadHistory();
+ const button=$('issue');
+ if(button.disabled)return false;
+ if(!confirm('你已在 Portaly 核對完成付款，確定建立一次性驗證碼？'))return false;
+ button.disabled=true;
+ try{
+  const obj=await api('POST',null,{action:'issue_code',...inputs()});
+  $('voucher').textContent='驗證碼（只顯示本次）：'+obj.code+'\n有效至：'+obj.expiresAt+'\n請私下交給學員，切勿公開。';
+  await loadHistory();
+ }finally{button.disabled=false}
 });
 async function loadMember(){
  const data=await api('GET',{action:'member',userId:userId()});
@@ -181,8 +186,14 @@ async function loadMember(){
 }
 $('lookup').onclick=()=>run(loadMember);
 $('grant').onclick=()=>run(async()=>{
- if(!confirm('確認人工開通該學員的「'+$('plan').selectedOptions[0].textContent+'」權益？'))return;
- await api('POST',null,{action:'grant',userId:userId(),...inputs()});await loadMember();
+ const button=$('grant');
+ if(button.disabled)return false;
+ if(!confirm('確認人工開通該學員的「'+$('plan').selectedOptions[0].textContent+'」權益？'))return false;
+ button.disabled=true;
+ try{
+  await api('POST',null,{action:'grant',userId:userId(),...inputs()});
+  await loadMember();
+ }finally{button.disabled=false}
 });
 const menuFeedback={
   disabled:['安全阻擋（disabled）：測試模式未啟用，沒有向 LINE 發送選單修改指令。','blocked'],
@@ -495,6 +506,8 @@ $('saveCourseLesson').onclick=async()=>{
   '\n'+(draft.published?'已購買該單元的學員將可以觀看。':'學員將無法播放此堂影片。')))return;
  btn.disabled=true;courseSaving=true;
  $('courseUnit').disabled=true;$('courseNumber').disabled=true;
+ // Freeze inputs so an in-flight response cannot overwrite new edits.
+ for(const field of courseEditableFields)$(field).disabled=true;
  feedback.textContent='正在儲存 '+id+'…';feedback.className='hint';
  try{
   const result=await api('POST',null,{action:'save_course_lesson',lesson:draft});
@@ -516,6 +529,7 @@ $('saveCourseLesson').onclick=async()=>{
  }finally{
   courseSaving=false;
   $('courseUnit').disabled=false;$('courseNumber').disabled=false;
+  for(const field of courseEditableFields)$(field).disabled=false;
   btn.disabled=courseEditorLoadedId!==id;
  }
 };
